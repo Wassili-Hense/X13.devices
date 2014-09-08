@@ -24,6 +24,8 @@ static void wakeUp(void);
 #include "uart.h"
 #endif  //  GATEWAY
 
+#include "ext/thermostat.h"
+
 __attribute__((OS_main)) int main(void) 
 {
     MQ_t * pPBuf;               // Publish Buffer
@@ -197,6 +199,7 @@ ISR(TIMER_ISR)
 #endif  //  ASLEEP
 #endif  //  USE_RTC_OSC
         iPoll |= IPOLL_USR;
+		tsTick();
 }
 
 #ifdef ASLEEP

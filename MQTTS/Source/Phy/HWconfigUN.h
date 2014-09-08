@@ -56,10 +56,10 @@ See LICENSE file for license details.
 // 25   PD1     SV1-12  TXD - On gateway busy
 // 26   PD2     SV1-13  IRQ 0
 // 27   PD3     SV1-14  IRQ 1
-// 28   PD4     SV1-15
-// 29   PD5     SV1-16  PWM0
-// 30   PD6     SV1-17  PWM1
-// 31   PD7     SV1-18
+// 28   PD4     SV1-15			Motor +
+// 29   PD5     SV1-16  PWM0	
+// 30   PD6     SV1-17  PWM1	Motor -
+// 31   PD7     SV1-18			Motor overload
 
 // Object's Dictionary Section
 #define OD_DEV_TYP_0            'U'
@@ -79,9 +79,9 @@ See LICENSE file for license details.
 
 #define PORTNUM_2_PORT          {(uint16_t)&PORTC, (uint16_t)&PORTD}
 #ifdef GATEWAY
-#define PORTNUM_2_MASK          {0xC0, 0x03}
+#define PORTNUM_2_MASK          {0xC0, 0xD3}
 #else   // GATEWAY
-#define PORTNUM_2_MASK          {0xC0, 0x00}
+#define PORTNUM_2_MASK          {0xC0, 0xD0}
 #endif  // GATEWAY
 // End Digital IO's
 

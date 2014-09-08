@@ -62,7 +62,7 @@
         <InterfaceName>ISP</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.ispmk2</ToolType>
-      <ToolNumber>000200038563</ToolNumber>
+      <ToolNumber>000200146448</ToolNumber>
       <ToolName>AVRISP mkII</ToolName>
     </com_atmel_avrdbg_tool_ispmk2>
   </PropertyGroup>
@@ -456,6 +456,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\extSer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\thermostat.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\thermostat.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\twim.c">

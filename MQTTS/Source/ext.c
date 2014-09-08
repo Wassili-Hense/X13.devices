@@ -35,6 +35,7 @@ See LICENSE file for license details.
 #include "ext/extSer.h"
 #endif  //  EXTSER_TX_USED || EXTSER_RX_USED
 #endif  //  EXTDIO_USED
+#include "ext/thermostat.h"
 
 // Delete All objects, & init hardware
 void extClean(void)
@@ -54,6 +55,7 @@ void extClean(void)
   twiClean();
 #endif  //  TWI_USED
 #endif  //  EXTDIO_USED
+tsClean();		//Thermostat
 }
 
 // Configure & Register PnP devices
@@ -62,6 +64,7 @@ void extConfig(void)
 #ifdef TWI_USED
   twiConfig();
 #endif  //  TWI_USED
+tsConfig();				//Thermostat
 }
 
 uint8_t extRegisterOD(indextable_t * pIdx)
