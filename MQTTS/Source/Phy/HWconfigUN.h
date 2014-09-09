@@ -55,9 +55,9 @@ See LICENSE file for license details.
 // 24   PD0     SV1-11  RXD - On gateway busy
 // 25   PD1     SV1-12  TXD - On gateway busy
 // 26   PD2     SV1-13  IRQ 0
-// 27   PD3     SV1-14  IRQ 1
+// 27   PD3     SV1-14  IRQ 1	Door opened
 // 28   PD4     SV1-15			Motor +
-// 29   PD5     SV1-16  PWM0	
+// 29   PD5     SV1-16  PWM0	Fan
 // 30   PD6     SV1-17  PWM1	Motor -
 // 31   PD7     SV1-18			Motor overload
 
