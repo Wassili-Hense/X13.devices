@@ -24,6 +24,7 @@ static uint8_t tsState=TS_STATE_PREINIT;
 static uint16_t tsTCnt;
 static int16_t tsCalibrate;
 static int16_t tsPosCur;
+static int16_t tsRefPath;
 //static int16_t tsPosCurS;
 static int16_t tsPosExp;
 static uint8_t  tsPrcntExp;
@@ -88,6 +89,7 @@ void tsTick(){
       tsCalibrate=tsTCnt;
       tsPosCur=0;
       tsPosExp=0;
+	  tsRefPath=0;
       {
         uint32_t tmp=tsCalibrate;
         tmp*=tsPrcntExp;
@@ -101,13 +103,14 @@ void tsTick(){
       PORTD &= ~(1<<MOTOR_MINUS);
       PORTD|=1<<MOTOR_PLUS;
       tsState=TS_STATE_RUN_POS;
-      } else if(tsPosExp+16<tsPosCur){
+    } else if(tsPosExp+16<tsPosCur){
       tsTCnt=32;
       PORTD &= ~(1<<MOTOR_PLUS);
       PORTD|=1<<MOTOR_MINUS;
-      if(tsPosExp<(tsCalibrate>>3)){
+      if(tsPosExp<(tsCalibrate>>3) && tsRefPath>tsCalibrate){
+		tsRefPath=0;
         tsState=TS_STATE_RUN_ZERO;
-        }else{
+      }else{
         tsState=TS_STATE_RUN_NEG;
       }
     }
@@ -116,7 +119,7 @@ void tsTick(){
     tsPosCur--;
     if(tsTCnt>0){
       tsTCnt--;
-      } else if((PIND & (1<<MOTOR_OVR))!=0){
+    } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
       tsPosCur=0;
       tsState=TS_STATE_WAIT;
@@ -124,9 +127,10 @@ void tsTick(){
     break;
   case TS_STATE_RUN_NEG:
     tsPosCur--;
+	tsRefPath++;
     if(tsTCnt>0){
       tsTCnt--;
-      } else if((PIND & (1<<MOTOR_OVR))!=0){
+    } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
       tsPosCur=0;
       tsState=TS_STATE_WAIT;
@@ -140,7 +144,7 @@ void tsTick(){
     tsPosCur++;
     if(tsTCnt>0){
       tsTCnt--;
-      } else if((PIND & (1<<MOTOR_OVR))!=0){
+    } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
       tsPosCur=tsCalibrate;
       tsState=TS_STATE_WAIT;
