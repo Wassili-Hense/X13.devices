@@ -3,8 +3,8 @@
 
 #define FAN_ON		PORTD5
 #define MOTOR_MINUS PORTD4
-#define MOTOR_PLUS	PORTD6
-#define MOTOR_OVR	PORTD7
+#define MOTOR_OVR	PORTD6
+#define MOTOR_PLUS	PORTD7
 
 static uint8_t tsWrite(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 //static uint8_t tsPoolAct(subidx_t * pSubidx, uint8_t sleep);

@@ -29,7 +29,7 @@ See LICENSE file for license details.
 const PROGMEM uint8_t ainBase2Apin_[] = EXTAIN_BASE_2_APIN;
 
 static uint8_t          ainBase[EXTAIN_MAXPORT_NR];
-static uint8_t          ainTimeout[EXTAIN_MAXPORT_NR];
+static uint16_t         ainTimeout[EXTAIN_MAXPORT_NR];
 static uint16_t         ainOldVal[EXTAIN_MAXPORT_NR];
 static tAIN_MASK_SIZE   ain_busy_mask;
 
@@ -108,7 +108,8 @@ uint8_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 
 uint8_t ainPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
-  uint8_t apin, atime;
+  uint8_t apin;
+  uint16_t  atime;
   static uint16_t ActVal;
 
   apin = ainBase2Apin(pSubidx->Base);
@@ -121,7 +122,7 @@ uint8_t ainPollOD(subidx_t * pSubidx, uint8_t sleep)
       EXTAIN_SELECT(EXTAIN_MUX_GND);
     }
 
-    ainTimeout[apin] = POLL_TMR_FREQ;
+    ainTimeout[apin] = (POLL_TMR_FREQ*30);
     return 0;
   }
 #endif  //  ASLEEP
@@ -159,7 +160,7 @@ uint8_t ainPollOD(subidx_t * pSubidx, uint8_t sleep)
   }
   
   ADCSRA = (1<<ADIF);                     // Disable ADC, Stop Conversion
-  ainTimeout[apin] = POLL_TMR_FREQ;
+  ainTimeout[apin] = (POLL_TMR_FREQ*30);
   ActVal += 8;
   ActVal >>= 4;
 

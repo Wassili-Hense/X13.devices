@@ -53,11 +53,11 @@ See LICENSE file for license details.
 // 24   PD0     P2-9(D0)    RXD - On gateway busy
 // 25   PD1     P2-8(D1)    TXD - On gateway busy
 // --   PD2     --      RF_IRQ
-// 27   PD3     P2-7(D3)    IRQ 1
-// 28   PD4     P2-6(D4)
-// 29   PD5     P2-5(D5)    PWM0
-// 30   PD6     P2-4(D6)    PWM1
-// 31   PD7     P2-3(D7)
+// 27   PD3     P2-7(D3)    IRQ 1 Door opened
+// 28   PD4     P2-6(D4)          Motor +
+// 29   PD5     P2-5(D5)    PWM0  Fan
+// 30   PD6     P2-4(D6)    PWM1  Motor overload
+// 31   PD7     P2-3(D7)          Motor -
 
 // Object's Dictionary Section
 #define OD_DEV_TYP_0            'P'
@@ -78,9 +78,9 @@ See LICENSE file for license details.
 #define PORTNUM_2_PORT          {(uint16_t)&PORTC, (uint16_t)&PORTD}
 
 #ifdef GATEWAY
-#define PORTNUM_2_MASK          {0xC0, 0x07}
+#define PORTNUM_2_MASK          {0xC0, 0xD7}
 #else   // GATEWAY
-#define PORTNUM_2_MASK          {0xC0, 0x04}
+#define PORTNUM_2_MASK          {0xC0, 0xD4}
 #endif  // GATEWAY
 // End Digital IO's
 

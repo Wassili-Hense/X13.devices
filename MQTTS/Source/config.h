@@ -79,7 +79,7 @@ See LICENSE file for license details.
 
 // RF Section
 //#define RF_BASE_FREQ            433920000UL
-#define RF_BASE_FREQ            868300000UL
+#define RF_BASE_FREQ            868800000UL
 //#define RF_BASE_FREQ            869000000UL
 //#define RF_BASE_FREQ            915000000UL
 
