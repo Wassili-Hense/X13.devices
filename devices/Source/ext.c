@@ -12,6 +12,7 @@ See LICENSE file for license details.
 
 #include "config.h"
 #include "ext.h"
+#include "EXT/thermostat.h"
 
 #ifdef EXTDIO_USED
 #include "EXT/extdio.h"
@@ -39,6 +40,7 @@ void extInit(void)
 #ifdef EXTTWI_USED
     twiInit();
 #endif
+  tsConfig();
 }
 
 // Check Subindex: 0 - free / 1 - busy / 2 - invalid
@@ -130,4 +132,5 @@ void extProc(void)
 #ifdef EXTAIN_USED
     ainProc();
 #endif  //  EXTAIN_USED
+  tsTick();
 }

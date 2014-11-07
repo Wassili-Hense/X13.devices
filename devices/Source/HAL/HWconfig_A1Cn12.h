@@ -42,10 +42,10 @@ See LICENSE file for license details.
 // 25   PD1     SV1-9       TXD
 // 26   PD2     SV1-8       IRQ 0 //** RF-GDO
 // 27   PD3     SV1-7       IRQ 1
-// 28   PD4     SV1-6
+// 28   PD4     SV1-6               Motor +
 // 29   PD5     SV1-5       PWM0
-// 30   PD6     SV1-4       PWM1
-// 31   PD7     SV1-3
+// 30   PD6     SV1-4       PWM1    Motor -
+// 31   PD7     SV1-3               Motor overload
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,14 +60,14 @@ extern "C" {
 #define EXTDIO_BASE_OFFSET          2
 #define EXTDIO_MAXPORT_NR           2                                     // Number of digital Ports
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTC, (uint16_t)&PORTD}
-#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x00}
+#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0xD0}
 // End DIO Section
 
 // PWM Section
 #define EXTPWM_USED                 1
-#define EXTPWM_MAXPORT_NR           2
-#define EXTPWM_PORT2CFG             {1, 0}          // bits 7-3 Timer, bits 2-0 Channel
-#define EXTPWM_PORT2DIO             {29,30}         // Mapping PWM channel to DIO
+#define EXTPWM_MAXPORT_NR           1
+#define EXTPWM_PORT2CFG             {1}          // bits 7-3 Timer, bits 2-0 Channel
+#define EXTPWM_PORT2DIO             {29}         // Mapping PWM channel to DIO
 // End PWM Section
 
 // Analogue Inputs
@@ -79,8 +79,8 @@ extern "C" {
 // End Analogue Inputs
 
 // TWI Section
-#define EXTTWI_USED                 1
-#define TWIM_SCL_STAT()             (PINC & (1<<PC5))
+//#define EXTTWI_USED                 1
+//#define TWIM_SCL_STAT()             (PINC & (1<<PC5))
 // End TWI Section
 
 // LEDs
