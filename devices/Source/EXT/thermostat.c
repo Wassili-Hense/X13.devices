@@ -21,13 +21,12 @@ enum {
   TS_STATE_RUN_POS,
 } tsSTATE_E;
 static uint8_t tsState=TS_STATE_PREINIT;
-static uint16_t tsTCnt;
-static int16_t tsCalibrate;
-static int16_t tsPosCur;
-static int16_t tsRefPath;
-//static int16_t tsPosCurS;
-static int16_t tsPosExp;
-static uint8_t  tsPrcntExp;
+static uint8_t tsPrcntExp;
+static int32_t tsTCnt;
+static int32_t tsCalibrate;
+static int32_t tsPosCur;
+static int32_t tsRefPath;
+static int32_t tsPosExp;
 
 
 void tsConfig(void){
@@ -58,7 +57,7 @@ void tsConfig(void){
 void tsTick(){
   switch(tsState){
   case TS_STATE_PREINIT:
-    tsTCnt=192;
+    tsTCnt=256;
     tsPosCur=-1;
     tsState=TS_STATE_INIT;
     tsCalibrate=0;
@@ -66,7 +65,7 @@ void tsTick(){
   case TS_STATE_INIT:
     if(--tsTCnt==0){
       tsState=TS_STATE_REF_NEG;
-      tsTCnt=32;
+      tsTCnt=48;
       PORTD|=1<<MOTOR_PLUS;
     }
     break;
@@ -81,31 +80,27 @@ void tsTick(){
     break;
   case TS_STATE_REF_POS:
     tsTCnt++;
-    if(tsTCnt>32 && (PIND & (1<<MOTOR_OVR))!=0){
+    if(tsTCnt>48 && (PIND & (1<<MOTOR_OVR))!=0){
       PORTD&=~(1<<MOTOR_MINUS);
       tsState=TS_STATE_WAIT;
       tsCalibrate=tsTCnt;
       tsPosCur=0;
       tsPosExp=0;
 	  tsRefPath=0;
-      {
-        uint32_t tmp=tsCalibrate;
-        tmp*=tsPrcntExp;
-        tsPosExp=(int16_t)(tmp>>8);
-      }
+      tsPosExp=((tsCalibrate*tsPrcntExp)>>8);
     }
     break;
   case TS_STATE_WAIT:
-    if(tsPosExp-16>tsPosCur){
-      tsTCnt=32;
+    if(tsPosExp-32>tsPosCur){
+      tsTCnt=48;
       PORTD &= ~(1<<MOTOR_MINUS);
       PORTD|=1<<MOTOR_PLUS;
       tsState=TS_STATE_RUN_POS;
-    } else if(tsPosExp+16<tsPosCur){
-      tsTCnt=32;
+    } else if(tsPosExp+32<tsPosCur){
+      tsTCnt=48;
       PORTD &= ~(1<<MOTOR_PLUS);
       PORTD|=1<<MOTOR_MINUS;
-      if(tsPosExp<(tsCalibrate>>3) && tsRefPath>tsCalibrate){
+      if(tsPosExp<(tsRefPath>>2)){
 		tsRefPath=0;
         tsState=TS_STATE_RUN_ZERO;
       }else{
@@ -131,6 +126,7 @@ void tsTick(){
     } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
       tsPosCur=0;
+	  tsRefPath=0;
       tsState=TS_STATE_WAIT;
     }
     if(tsPosCur<=tsPosExp){
@@ -159,9 +155,7 @@ void tsTick(){
 static uint8_t tsWrite(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf){
   tsPrcntExp=pBuf[0];
   if(tsCalibrate!=0){
-    uint32_t tmp=tsCalibrate;
-    tmp*=tsPrcntExp;
-    tsPosExp=(int16_t)(tmp>>8);
+    tsPosExp=((tsCalibrate*tsPrcntExp)>>8);
   }
   return MQTTSN_RET_ACCEPTED;
 }

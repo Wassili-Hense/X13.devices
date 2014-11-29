@@ -37,7 +37,7 @@ extern "C" {
 #define POLL_TMR_FREQ           100     // System Tick Period
 
 #define UART_BaudRate           38400
-#define RF_BASE_FREQ            868300000UL
+#define RF_BASE_FREQ            868800000UL
 
 //Optional modules
 //#define EXTDIO_USED             1       // Use DIO
