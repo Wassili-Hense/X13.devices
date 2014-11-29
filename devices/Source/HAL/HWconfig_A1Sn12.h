@@ -55,7 +55,6 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define DIO_PORT_SIZE               8
 #define EXTDIO_BASE_OFFSET          1
 #define EXTDIO_MAXPORT_NR           3                                     // Number of digital Ports
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
@@ -121,6 +120,7 @@ extern "C" {
 #define PHY1_Init                   UART_Init
 #define PHY1_Send                   UART_Send
 #define PHY1_Get                    UART_Get
+#define PHY1_GetAddr                UART_GetAddr
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
 

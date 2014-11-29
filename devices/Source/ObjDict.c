@@ -95,7 +95,7 @@ extern indextable_t PLCexchgOD;                                         // PLC e
 //////////////////////////
 
 // Local variables
-static uint8_t idxUpdate = 0;                                           // Poll pointer
+static uint16_t idxUpdate = 0;                                          // Poll pointer
 
 //////////////////////////
 // Callback functions
@@ -113,7 +113,7 @@ static uint8_t cbWriteADCaverage(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 // Convert raw data from mqtt-sn packet to LAN variables
 uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
-  uint16_t Base = pSubidx->Base;
+    uint16_t Base = pSubidx->Base;
 
   if(Base == eeMACAddr)
   {
@@ -123,8 +123,8 @@ uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
   else if(Len != 4)
     return MQTTSN_RET_REJ_CONG;
 
-  eeprom_write(pBuf, Base, Len);
-  return MQTTSN_RET_ACCEPTED;
+    eeprom_write(pBuf, Base, Len);
+    return MQTTSN_RET_ACCEPTED;
 }
 
 uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
@@ -391,8 +391,6 @@ void InitOD(void)
     if(ucTmp == 0xFF)                                                                       // Not Configured
     {
         // Load Default Settings
-        ucTmp = 0;
-        WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);                          // Device Name
 #ifdef RF_ADDR_t
 #ifndef ADDR_DEFAULT_RF
 #define ADDR_DEFAULT_RF ADDR_UNDEF_RF    // DHCP
@@ -409,14 +407,6 @@ void InitOD(void)
         ucTmp = OD_DEFAULT_CHANNEL;
         WriteOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);             // Channel
 #endif  //  OD_DEFAULT_CHANNEL
-#ifdef EXTAIN_USED
-        uiTmp = 80;
-        WriteOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);   // ADC conversion delay
-#endif  //  EXTAIN_USED
-#ifdef ASLEEP
-        uiTmp = OD_DEFAULT_TASLEEP;
-        WriteOD(objTAsleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Sleep Time
-#endif  //  ASLEEP
 #endif  //  RF_ADDR_t
 #ifdef LAN_NODE
 #ifndef OD_DEF_IP_ADDR
@@ -432,17 +422,27 @@ void InitOD(void)
 #define OD_DEF_IP_BROKER    0xFFFFFFFF      // Default IP Broker - auto resolve
 #endif  //  OD_DEF_IP_BROKER
         uint32_t  ulTmp;
-        uint8_t   defMAC[] = OD_DEV_MAC;
-        WriteOD(objMACAddr, MQTTSN_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);       // Default MAC
-        ulTmp = OD_DEF_IP_ADDR;
-        WriteOD(objIPAddr, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
-        ulTmp = OD_DEF_IP_MASK;
-        WriteOD(objIPMask, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
-        ulTmp = OD_DEF_IP_ROUTER;
-        WriteOD(objIPRouter, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
         ulTmp = OD_DEF_IP_BROKER;
         WriteOD(objIPBroker, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
+        ulTmp = OD_DEF_IP_ROUTER;
+        WriteOD(objIPRouter, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
+        ulTmp = OD_DEF_IP_MASK;
+        WriteOD(objIPMask,   MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
+        ulTmp = OD_DEF_IP_ADDR;
+        WriteOD(objIPAddr,   MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
+        uint8_t   defMAC[] = OD_DEV_MAC;
+        WriteOD(objMACAddr, MQTTSN_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);       // Default MAC
 #endif  //  LAN_NODE
+#ifdef EXTAIN_USED
+        uiTmp = 80;
+        WriteOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);   // ADC conversion delay
+#endif  //  EXTAIN_USED
+#ifdef ASLEEP
+        uiTmp = OD_DEFAULT_TASLEEP;
+        WriteOD(objTAsleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Sleep Time
+#endif  //  ASLEEP
+        ucTmp = 0;
+        WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);                          // Device Name
     }
 
     // Clear listOD
@@ -450,7 +450,7 @@ void InitOD(void)
         ListOD[uiTmp].Index = 0xFFFF;
 
     // Clear Poll Variables
-    idxUpdate = 0x00;
+    idxUpdate = 0x0000;
 
     extInit();
 #ifdef PLC_USED
@@ -766,20 +766,15 @@ void OD_Poll(void)
         if(idxUpdate >= OD_MAX_INDEX_LIST)
             idxUpdate = 0;
 
-        while(idxUpdate < OD_MAX_INDEX_LIST)
+        while(MQTTSN_CanSend() && (idxUpdate < OD_MAX_INDEX_LIST))
         {
             if((ListOD[idxUpdate].Index != 0xFFFF) &&
                (ListOD[idxUpdate].cbPoll != NULL) &&
                (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, 0))
             {
-                if(MQTTSN_CanSend())
-                {
-                    MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
-                               (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
-                                ListOD[idxUpdate].Index);
-                    idxUpdate++;
-                }
-                break;
+                MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
+                            (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
+                            ListOD[idxUpdate].Index);
             }
             idxUpdate++;
         }
@@ -800,22 +795,22 @@ void OD_Poll(void)
                 idxUpdate++;
         }
         // Publish device info
-        else if(idxUpdate < 0xFF)
+        else if(idxUpdate < 0xFFFF)
         {
-            if(idxUpdate < 0xC0)
-                idxUpdate = 0xC0;
+            if(idxUpdate < 0xFFC0)
+                idxUpdate = 0xFFC0;
                 
             if(MQTTSN_CanSend())
             {
-                if(scanIndexOD(0xFF00 + idxUpdate, MQTTSN_FL_TOPICID_PREDEF) != NULL)
+                if(scanIndexOD(idxUpdate, MQTTSN_FL_TOPICID_PREDEF) != NULL)
                 {
                     MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
                                (MQTTSN_FL_QOS1 | MQTTSN_FL_RETAIN | MQTTSN_FL_TOPICID_PREDEF),
-                                0xFF00 + idxUpdate);
+                               idxUpdate);
                     idxUpdate++;
                 }
                 else
-                    idxUpdate = 0xFF;
+                    idxUpdate = 0xFFFF;
             }
         }
         // Send Subscribe

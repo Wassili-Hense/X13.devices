@@ -19,14 +19,19 @@ See LICENSE file for license details.
 #include "extdio.h"
 
 #if (DIO_PORT_SIZE == 8)
-#define DIO_PORT_POS        3
-#define DIO_PORT_MASK       0x07
+    #define DIO_PORT_POS        3
+    #define DIO_PORT_MASK       0x07
+    #define DIO_PORT_TYPE       uint8_t
 #elif (DIO_PORT_SIZE == 16)
-#define DIO_PORT_POS        4
-#define DIO_PORT_MASK       0x0F
+    #define DIO_PORT_POS        4
+    #define DIO_PORT_MASK       0x0F
+    #define DIO_PORT_TYPE       uint16_t
 #elif (DIO_PORT_SIZE == 32)
-#define DIO_PORT_POS        5
-#define DIO_PORT_MASK       0x1F
+    #define DIO_PORT_POS        5
+    #define DIO_PORT_MASK       0x1F
+    #define DIO_PORT_TYPE       uint32_t
+#else
+    #error DIO_PORT_SIZE unknown size
 #endif  //  DIO_PORT_SIZE
 
 static const DIO_PORT_TYPE dio_portnum2mask[EXTDIO_MAXPORT_NR] = EXTDIO_PORTNUM2MASK;

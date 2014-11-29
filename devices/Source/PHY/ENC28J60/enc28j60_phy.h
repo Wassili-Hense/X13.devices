@@ -19,10 +19,13 @@ extern "C" {
 
 #define LAN_NODE
 
+#define inet_addr(d,c,b,a)          (((uint32_t)a<<24) | ((uint32_t)b << 16) | ((uint32_t)c<<8)  | ((uint32_t)d))
+
 // API Section
 void ENC28J60_Init(void);
 void ENC28J60_Send(void *pBuf);
 void * ENC28J60_Get(void);
+void * ENC28J60_GetAddr(void);
 
 #ifdef __cplusplus
 }

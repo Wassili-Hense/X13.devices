@@ -56,7 +56,6 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define DIO_PORT_SIZE               8
 #define EXTDIO_BASE_OFFSET          2
 #define EXTDIO_MAXPORT_NR           2                                     // Number of digital Ports
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTC, (uint16_t)&PORTD}
@@ -82,6 +81,16 @@ extern "C" {
 //#define EXTTWI_USED                 1
 //#define TWIM_SCL_STAT()             (PINC & (1<<PC5))
 // End TWI Section
+
+// UART Section
+#define UART0_PORT                  PORTD
+#define UART0_DDR                   DDRD
+#define UART0_RX_PIN                PD0
+#define UART0_TX_PIN                PD1
+
+#define EXTSER_USED                 1
+#define EXTSER_PORT2UART            {0}
+// End UART Section
 
 // LEDs
 #define LED1_On()                   PORTB &= ~(1<<PB0)
@@ -119,6 +128,7 @@ extern "C" {
 #define PHY1_Init                   CC11_Init
 #define PHY1_Send                   CC11_Send
 #define PHY1_Get                    CC11_Get
+#define PHY1_GetAddr                CC11_GetAddr
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
 

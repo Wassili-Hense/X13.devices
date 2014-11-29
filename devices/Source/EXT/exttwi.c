@@ -18,14 +18,8 @@ See LICENSE file for license details.
 
 #include "exttwi.h"
 
-typedef struct sTWI_QUEUE
-{
-    struct  sTWI_QUEUE * pNext;
-    TWI_FRAME_t frame;
-}TWI_QUEUE_t;
-
 // Global variable used in HAL
-volatile TWI_FRAME_t twi_exchange;
+volatile TWI_QUEUE_t  * pTwi_exchange = NULL;
 
 // local queues
 static Queue_t  twi_tx_queue = {NULL, NULL, 0, 0};
@@ -36,9 +30,12 @@ void hal_twi_tick(void);
 
 e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    *pLen = twi_exchange.read + sizeof(TWI_FRAME_t);
-    memcpy(pBuf, (void *)&twi_exchange, *pLen);
-    twi_exchange.access = 0;
+    assert(pTwi_exchange != NULL);
+
+    *pLen = pTwi_exchange->frame.read + sizeof(TWI_FRAME_t);
+    memcpy(pBuf, (void *)&pTwi_exchange->frame, *pLen);
+    mqFree((void *)pTwi_exchange);
+    pTwi_exchange = NULL;
     return MQTTSN_RET_ACCEPTED;
 }
 
@@ -52,10 +49,20 @@ e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
         return MQTTSN_RET_REJ_CONG;
 
     memcpy(&pQueue->frame, pBuf, Len);
+    
+    pQueue->frame.access &= (TWI_WRITE | TWI_READ);
+    pQueue->frame.write = (Len - sizeof(TWI_FRAME_t));
+    if(pQueue->frame.write != 0)
+    {
+        pQueue->frame.access |= TWI_WRITE;
+    }
+    if(pQueue->frame.read != 0)
+    {
+        pQueue->frame.access |= TWI_READ;
+    }
 
-    if(((pQueue->frame.access & 0xFC) != 0) ||
-        (pQueue->frame.write != (Len - sizeof(TWI_FRAME_t))) || 
-        (pQueue->frame.read > (MQTTSN_MSG_SIZE - sizeof(TWI_FRAME_t) - MQTTSN_SIZEOF_MSG_PUBLISH)))
+    if((pQueue->frame.read > (MQTTSN_MSG_SIZE - sizeof(TWI_FRAME_t) - MQTTSN_SIZEOF_MSG_PUBLISH)) ||
+       ((pQueue->frame.access & (TWI_WRITE | TWI_READ)) == 0))
     {
         mqFree(pQueue);
         return MQTTSN_RET_REJ_NOT_SUPP;
@@ -72,21 +79,33 @@ e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 uint8_t twiPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
-    if(twi_exchange.access != 0)
+    if(pTwi_exchange != NULL)
     {
-        if((twi_exchange.access & 0xF0) != 0)
+        uint8_t access = pTwi_exchange->frame.access;
+        if((access & (TWI_ERROR | TWI_SLANACK | TWI_WD)) != 0)      // Error state
+        {
             return 1;
+        }
+        else if(access & TWI_RDY)
+        {
+            if(pTwi_exchange->frame.read != 0)
+            {
+                return 1;
+            }
+            else
+            {
+                mqFree((void *)pTwi_exchange);
+                pTwi_exchange = NULL;
+            }
+        }
         else
+        {
             hal_twi_tick();
+        }
     }
     else if(twi_tx_queue.Size != 0)
     {
-        TWI_QUEUE_t * pTwi = mqDequeue(&twi_tx_queue);
-        if(pTwi != NULL)
-        {
-            memcpy((void *)&twi_exchange, &pTwi->frame, sizeof(MQ_t));
-            mqFree(pTwi);
-        }
+        pTwi_exchange = mqDequeue(&twi_tx_queue);
     }
 
     return 0;
@@ -97,7 +116,11 @@ void twiInit()
     if(!hal_twi_configure(1))           // Enable
         return;
 
-    twi_exchange.access = 0;
+    if(pTwi_exchange != NULL)
+    {
+        mqFree((void *)pTwi_exchange);
+        pTwi_exchange = NULL;
+    }
 
     // Register variable Ta0
     indextable_t * pIndex = getFreeIdxOD();

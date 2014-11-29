@@ -17,6 +17,16 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+typedef enum
+{
+  DIO_MODE_IN_FLOAT = 0,
+  DIO_MODE_IN_PD,
+  DIO_MODE_IN_PU,
+  DIO_MODE_OUT,
+  DIO_MODE_PWM,
+  DIO_MODE_AIN
+}eDIOmode_t;
+
 void dioInit(void);
 uint8_t dioCheckIdx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx);

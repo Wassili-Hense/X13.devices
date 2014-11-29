@@ -11,6 +11,7 @@ See LICENSE file for license details.
 */
 
 #include "config.h"
+#include "diag.h"
 
 static volatile uint8_t SystemTickCnt;
 
@@ -71,7 +72,6 @@ int main(void)
     }
 }
 
-
 #ifdef LED1_On
 static uint16_t LED1_mask = 0xFFFF;
 void SetLED1mask(uint16_t mask)
@@ -88,10 +88,18 @@ void SetLED2mask(uint16_t mask)
 }
 #endif  //  LED2_On
 
+static volatile uint32_t tick_count = 0;
 
+uint32_t inline GetTickCounter()
+{
+    return tick_count;
+}
 
 void SystemTick(void)
 {
+    tick_count++;
+    SystemTickCnt++;
+
 #ifdef LED1_On
     if(LED1_mask & 1)
         LED1_On();
@@ -109,6 +117,4 @@ void SystemTick(void)
 
     LED2_mask >>= 1;
 #endif  //  LED2_On
-
-    SystemTickCnt++;
 }

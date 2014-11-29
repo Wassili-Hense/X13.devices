@@ -238,6 +238,38 @@
                 <item name="_description" value="Inverted PWM Output, PD6" saved="True" type="System.String" />
             </item>
         </item>
+        <item name="Serial">
+            <item name="Sr0" value="AsX24,S20,B21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 2400, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr1" value="AsX24,B20,S21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 4800, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr2" value="AsX24,B20,B21,S22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 9600, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr3" value="AsX24,B20,B21,B22,S23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 19200, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr4" value="AsX24,B20,B21,B22,B23,S24" saved="True" type="System.String">
+                <item name="_description" value="RxD 38400, RX" saved="True" type="System.String" />
+            </item>
+            <item name="St0" value="AsX25,S20,B21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 2400, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St1" value="AsX25,B20,S21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 4800, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St2" value="AsX25,B20,B21,S22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 9600, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St3" value="AsX25,B20,B21,B22,S23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 19200, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St4" value="AsX25,B20,B21,B22,B23,S24" saved="True" type="System.String">
+                <item name="_description" value="TxD 38400, TX" saved="True" type="System.String" />
+            </item>
+        </item>
     </item>
     <item name="A1En12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.0">
         <item name="Add">
@@ -474,6 +506,38 @@
             </item>
             <item name="Pn1" value="DiX30" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PD6" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="Serial">
+            <item name="Sr0" value="AsX24,S20,B21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 2400, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr1" value="AsX24,B20,S21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 4800, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr2" value="AsX24,B20,B21,S22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 9600, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr3" value="AsX24,B20,B21,B22,S23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 19200, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr4" value="AsX24,B20,B21,B22,B23,S24" saved="True" type="System.String">
+                <item name="_description" value="RxD 38400, RX" saved="True" type="System.String" />
+            </item>
+            <item name="St0" value="AsX25,S20,B21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 2400, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St1" value="AsX25,B20,S21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 4800, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St2" value="AsX25,B20,B21,S22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 9600, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St3" value="AsX25,B20,B21,B22,S23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 19200, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St4" value="AsX25,B20,B21,B22,B23,S24" saved="True" type="System.String">
+                <item name="_description" value="TxD 38400, TX" saved="True" type="System.String" />
             </item>
         </item>
     </item>
@@ -2042,6 +2106,21 @@
             <item name="On65" value="DzX65" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PJ1" saved="True" type="System.String" />
             </item>
+            <item name="St20" value="AsX65,S220,B221,B222,B223,B224" saved="True" type="System.String">
+                <item name="_description" value="TxD 2400, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St21" value="AsX65,B220,S221,B222,B223,B224" saved="True" type="System.String">
+                <item name="_description" value="TxD 4800, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St22" value="AsX65,B220,B221,S222,B223,B224" saved="True" type="System.String">
+                <item name="_description" value="TxD 9600, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St23" value="AsX65,B220,B221,B222,S223,B224" saved="True" type="System.String">
+                <item name="_description" value="TxD 19200, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St24" value="AsX65,B220,B221,B222,B223,S224" saved="True" type="System.String">
+                <item name="_description" value="TxD 38400, TX" saved="True" type="System.String" />
+            </item>
         </item>
         <item name="15">
             <item name="Ip64" value="AzX64" saved="True" type="System.String">
@@ -2055,6 +2134,21 @@
             </item>
             <item name="On64" value="DzX64" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PJ0" saved="True" type="System.String" />
+            </item>
+            <item name="Sr20" value="AsX64,S220,B221,B222,B223,B224" saved="True" type="System.String">
+                <item name="_description" value="RxD 2400, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr21" value="AsX64,B220,S221,B222,B223,B224" saved="True" type="System.String">
+                <item name="_description" value="RxD 4800, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr22" value="AsX64,B220,B221,S222,B223,B224" saved="True" type="System.String">
+                <item name="_description" value="RxD 9600, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr23" value="AsX64,B220,B221,B222,S223,B224" saved="True" type="System.String">
+                <item name="_description" value="RxD 19200, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr24" value="AsX64,B220,B221,B222,B223,S224" saved="True" type="System.String">
+                <item name="_description" value="RxD 38400, RX" saved="True" type="System.String" />
             </item>
         </item>
         <item name="16">
@@ -2070,19 +2164,49 @@
             <item name="On57" value="DzX57" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PH1" saved="True" type="System.String" />
             </item>
+            <item name="St10" value="AsX57,S120,B121,B122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="TxD 2400, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St11" value="AsX57,B120,S121,B122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="TxD 4800, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St12" value="AsX57,B120,B121,S122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="TxD 9600, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St13" value="AsX57,B120,B121,B122,S123,B124" saved="True" type="System.String">
+                <item name="_description" value="TxD 19200, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St14" value="AsX57,B120,B121,B122,B123,S124" saved="True" type="System.String">
+                <item name="_description" value="TxD 38400, TX" saved="True" type="System.String" />
+            </item>
         </item>
         <item name="17">
-            <item name="Ip56" value="AzX57" saved="True" type="System.String">
+            <item name="Ip56" value="AzX56" saved="True" type="System.String">
                 <item name="_description" value="Digital input, PH0" saved="True" type="System.String" />
             </item>
-            <item name="In56" value="BzX57" saved="True" type="System.String">
+            <item name="In56" value="BzX56" saved="True" type="System.String">
                 <item name="_description" value="Digital Pull-Up inverted input, PH0" saved="True" type="System.String" />
             </item>
-            <item name="Op56" value="CzX57" saved="True" type="System.String">
+            <item name="Op56" value="CzX56" saved="True" type="System.String">
                 <item name="_description" value="Digital output, PH0" saved="True" type="System.String" />
             </item>
-            <item name="On56" value="DzX57" saved="True" type="System.String">
+            <item name="On56" value="DzX56" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PH0" saved="True" type="System.String" />
+            </item>
+            <item name="Sr10" value="AsX56,S120,B121,B122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="RxD 2400, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr11" value="AsX56,B120,S121,B122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="RxD 4800, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr12" value="AsX56,B120,B121,S122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="RxD 9600, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr13" value="AsX56,B120,B121,B122,S123,B124" saved="True" type="System.String">
+                <item name="_description" value="RxD 19200, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr14" value="AsX56,B120,B121,B122,B123,S124" saved="True" type="System.String">
+                <item name="_description" value="RxD 38400, RX" saved="True" type="System.String" />
             </item>
         </item>
         <item name="18">
@@ -2098,6 +2222,21 @@
             <item name="On27" value="DzX27" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PD3" saved="True" type="System.String" />
             </item>
+            <item name="St0" value="AsX27,S20,B21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 2400, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St1" value="AsX27,B20,S21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 4800, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St2" value="AsX27,B20,B21,S22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 9600, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St3" value="AsX27,B20,B21,B22,S23,B24" saved="True" type="System.String">
+                <item name="_description" value="TxD 19200, TX" saved="True" type="System.String" />
+            </item>
+            <item name="St4" value="AsX27,B20,B21,B22,B23,S24" saved="True" type="System.String">
+                <item name="_description" value="TxD 38400, TX" saved="True" type="System.String" />
+            </item>
         </item>
         <item name="19">
             <item name="Ip26" value="AzX26" saved="True" type="System.String">
@@ -2111,6 +2250,21 @@
             </item>
             <item name="On26" value="DzX26" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PD2" saved="True" type="System.String" />
+            </item>
+            <item name="Sr0" value="AsX26,S20,B21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 2400, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr1" value="AsX26,B20,S21,B22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 4800, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr2" value="AsX26,B20,B21,S22,B23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 9600, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr3" value="AsX26,B20,B21,B22,S23,B24" saved="True" type="System.String">
+                <item name="_description" value="RxD 19200, RX" saved="True" type="System.String" />
+            </item>
+            <item name="Sr4" value="AsX26,B20,B21,B22,B23,S24" saved="True" type="System.String">
+                <item name="_description" value="RxD 38400, RX" saved="True" type="System.String" />
             </item>
         </item>
     </item>

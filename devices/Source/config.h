@@ -32,7 +32,7 @@ extern "C" {
 #define OD_MAX_INDEX_LIST       16      // Size of identificators list
 #define OD_DEV_SWVERSH          '3'     // Software Version
 #define OD_DEV_SWVERSM          '0'
-#define OD_DEV_SWVERSL          '0'
+#define OD_DEV_SWVERSL          '1'
 
 #define POLL_TMR_FREQ           100     // System Tick Period
 
@@ -42,8 +42,9 @@ extern "C" {
 //Optional modules
 //#define EXTDIO_USED             1       // Use DIO
 //#define EXTPWM_USED             1       // Use PWM
-//#define EXTAIN_USED             1       // Use Analogue inputs
-//#define EXTTWI_USED             1       // Use TWI Devices
+//#define EXTAIN_USED             1       // Use Analog inputs
+//#define EXTTWI_USED             1       // Use TWI/I2C Devices
+//#define EXTSER_USED             1       // Use Serial Port
 
 //#define DIAG_USED               1       // Enable diagnostic messages
 
@@ -66,6 +67,8 @@ extern "C" {
 #elif   (defined CFG_A3Sn12)
 #include "HAL/HWconfig_A3Sn12.h"
 // ATM2560
+#elif   (defined CFG_A4En12)
+#include "HAL/HWconfig_A4En12.h"
 #elif   (defined CFG_A4Sn12)
 #include "HAL/HWconfig_A4Sn12.h"
 // STM32F051
@@ -88,7 +91,9 @@ extern "C" {
 #include "mqTypes.h"
 #include "mqttsn.h"
 #include "ObjDict.h"
-#include "diag.h"
+
+// Time Counters
+uint32_t GetTickCounter();
 
 #ifdef __cplusplus
 }

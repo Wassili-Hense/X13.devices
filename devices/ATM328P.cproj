@@ -26,16 +26,16 @@
     <BootSegment>2</BootSegment>
     <eraseonlaunchrule>1</eraseonlaunchrule>
     <AsfFrameworkConfig>
-      <framework-data>
-  <options />
-  <configurations />
-  <files />
-  <documentation help="" />
-  <offline-documentation help="" />
-  <dependencies>
-    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.6.0" />
-  </dependencies>
-</framework-data>
+      <framework-data xmlns="">
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.19.0" />
+        </dependencies>
+      </framework-data>
     </AsfFrameworkConfig>
     <preserveEEPROM>true</preserveEEPROM>
     <avrtool />
@@ -252,16 +252,16 @@
     <Compile Include="Source\EXT\extdio.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\EXT\extser.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\EXT\extser.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\EXT\exttwi.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\EXT\exttwi.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\EXT\thermostat.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\EXT\thermostat.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\HAL\AVR\HAL.c">
@@ -289,9 +289,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\HAL\AVR\hal_uart.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\HAL\HWconfig_A1Cn12.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\HAL\HWconfig_A1En12.h">
@@ -340,6 +337,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\PHY\ENC28J60\enc28j60_hw.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\PHY\ENC28J60\enc28j60_net.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\PHY\ENC28J60\enc28j60_net.h">

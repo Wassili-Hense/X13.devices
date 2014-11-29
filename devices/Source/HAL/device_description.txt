@@ -1,5 +1,6 @@
 Controller Family:
 'A' - Atmel Mega
+'F' - Freescale
 'N' - NXP
 'S' - STM32F
 
@@ -12,6 +13,10 @@ Atmel
 1 - ATMega328P
 3 - ATMega1284P
 4 - ATMega2560 / Arduino - Mega 2560
+
+Freescale
+1 - MKW01, M0 + RF ISM, Board MRB-KW019032
+4 - MK64FN1M, M4 + LAN, Board FRDM-K64F
 
 NXP
 5 - LPC1769

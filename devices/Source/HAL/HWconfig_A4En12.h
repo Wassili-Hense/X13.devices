@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_A4SN12_H
-#define HWCONFIG_A4SN12_H
+#ifndef HWCONFIG_A3SN12_H
+#define HWCONFIG_A3SN12_H
 
 // Arduino MEGA
 // uc ATMega2560
@@ -111,6 +111,7 @@ extern "C" {
 #endif
 
 #include "AVR/hal.h"
+#include <util/delay.h>
 
 // DIO Section
 #define EXTDIO_USED                 1
@@ -118,7 +119,7 @@ extern "C" {
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD,  \
                                      (uint16_t)&PORTE, (uint16_t)&PORTF, (uint16_t)&PORTG, (uint16_t)&PORTH,  \
                                      (uint16_t)&PORTJ, (uint16_t)&PORTK, (uint16_t)&PORTL}
-#define EXTDIO_PORTNUM2MASK         {(uint8_t)0x00, (uint8_t)0x00, (uint8_t)0x00, (uint8_t)0x73,  \
+#define EXTDIO_PORTNUM2MASK         {(uint8_t)0x00, (uint8_t)0x0F, (uint8_t)0x00, (uint8_t)0x73,  \
                                      (uint8_t)0xC7, (uint8_t)0xF0, (uint8_t)0xD8, (uint8_t)0x84,  \
                                      (uint8_t)0xFC, (uint8_t)0x00, (uint8_t)0x00}
 // End DIO Section
@@ -162,43 +163,54 @@ extern "C" {
 #define UART3_RX_PIN                PJ0
 #define UART3_TX_PIN                PJ1
 
-#define UART_PHY_PORT               0
-
 #define EXTSER_USED                 1
-#define EXTSER_PORT2UART            {1,2,3}
+#define EXTSER_PORT2UART            {0,1,2,3}
 // End UART Section
 
-#define UART_PHY                    1
+// LAN Section
+#define LAN_PORT                    PORTB
+#define LAN_DDR                     DDRB
+#define LAN_PIN                     PINB
+#define LAN_PIN_SS                  PB0
+#define LAN_PIN_SCK                 PB1
+#define LAN_PIN_MOSI                PB2
+#define LAN_PIN_MISO                PB3
 
-#define PHY1_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
-#define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)0xFF
+#define ENC_SELECT()                (PORTB &= ~(1<<LAN_PIN_SS))
+#define ENC_RELEASE()               (PORTB |= (1<<LAN_PIN_SS))
+// End LAN Section
 
-#define RF_ADDR_t                   uint8_t
-#define ADDR_UNDEF_RF               (RF_ADDR_t)0xFF
-//#define ADDR_DEFAULT_RF             (RF_ADDR_t)0x04
+#define ENC28J60_PHY                1
+
+#define PHY1_ADDR_t                 uint32_t
+#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)inet_addr(255,255,255,255)
+#define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)inet_addr(255,255,255,255)
 
 // Object's Dictionary Section
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '4'
-#define OD_DEV_PHY1                 'S'
+#define OD_DEV_PHY1                 'E'
 #define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
+#define OD_ADDR_TYPE                objUInt32
+#define OD_DEV_MAC                  {0x00,0x04,0xA3,0x00,0x00,0x10}   // MAC MSB->LSB
+//#define OD_DEF_IP_ADDR              inet_addr(192,168,20,216)
+//#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
+//#define OD_DEF_IP_ROUTER            inet_addr(192,168,20,1)
+//#define OD_DEF_IP_BROKER            inet_addr(192,168,10,1)
 
-#define OD_ADDR_TYPE                objUInt8
+#include "../PHY/ENC28J60/enc28j60_phy.h"
 
-#include "../PHY/UART/uart_phy.h"
-
-#define PHY1_Init                   UART_Init
-#define PHY1_Send                   UART_Send
-#define PHY1_Get                    UART_Get
-#define PHY1_GetAddr                UART_GetAddr
-#define PHY1_NodeId                 objRFNodeId
-#define PHY1_GateId                 objGateID
+#define PHY1_Init                   ENC28J60_Init
+#define PHY1_Send                   ENC28J60_Send
+#define PHY1_Get                    ENC28J60_Get
+#define PHY1_GetAddr                ENC28J60_GetAddr
+#define PHY1_NodeId                 objIPAddr
+#define PHY1_GateId                 objIPBroker
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // HWCONFIG_A4SN12_H
+#endif // HWCONFIG_A3SN12_H

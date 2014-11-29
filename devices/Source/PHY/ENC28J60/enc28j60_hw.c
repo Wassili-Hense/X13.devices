@@ -105,6 +105,7 @@ static void enc28j60WriteBuffer(uint16_t len, uint8_t* data)
   //taskEXIT_CRITICAL();
 }
 
+/*
 // read 8 bits
 static uint8_t enc28j60PhyRead8(uint8_t address)
 {
@@ -118,6 +119,7 @@ static uint8_t enc28j60PhyRead8(uint8_t address)
   // get data value from MIRDH
   return enc28j60Read(MIRDH);
 }
+*/
 
 static void enc28j60PhyWrite(uint8_t address, uint16_t data)
 {
@@ -142,6 +144,8 @@ void enc28j60Init(uint8_t* macaddr)
   // change clkout from 6.25MHz to 12.5MHz
   enc28j60Write(ECOCON, 2);
   _delay_ms(20);
+  
+  assert(enc28j60Read(ECOCON) == 2);
 
   // do bank 0 stuff
   // initialize receive buffer
@@ -202,7 +206,7 @@ void enc28j60Init(uint8_t* macaddr)
   // enable packet reception
   enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
 }
-/*
+
 // A number of utility functions to enable/disable broadcast 
 void enc28j60EnableBroadcast(void)
 {
@@ -219,8 +223,9 @@ void enc28j60DisableBroadcast(void)
   erxfcon &= ~ERXFCON_BCEN;
   enc28j60Write(ERXFCON, erxfcon);
 }
-*/
 
+
+/*
 // link status
 bool enc28j60linkup(void)
 {
@@ -228,23 +233,53 @@ bool enc28j60linkup(void)
   // PHSTAT2 LSTAT (= bit 10 in upper reg)
   return ((enc28j60PhyRead8(PHSTAT2) & (1<<2)) != 0);
 }
+*/
 
-bool enc28j60_CanSend(void)
+void enc28j60_SendPrep(uint16_t len)
 {
-  // Check no transmit in progress
-  if(enc28j60Read(ECON1) & ECON1_TXRTS)
-  {
-    // Reset the transmit logic problem. See Rev. B4 Silicon Errata point 12.
-    if((enc28j60Read(EIR) & EIR_TXERIF))
+    // ToDo Timeout
+    // Check no transmit in progress
+    while(enc28j60Read(ECON1) & ECON1_TXRTS)
     {
-      enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRST);
-      enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRST);
+        // Reset the transmit logic problem. See Rev. B4 Silicon Errata point 12.
+        if((enc28j60Read(EIR) & EIR_TXERIF))
+        {
+            enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRST);
+            enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRST);
+        }
     }
-    return false;
-  }
-  return true;
+
+    // Set the write pointer to start of transmit buffer area
+    enc28j60WriteW(EWRPT, TXSTART_INIT);
+    // Set the TXND pointer to correspon to the packet size given
+    enc28j60WriteW(ETXND, (TXSTART_INIT + len));
+    // write per-packet control byte (0x00 means use macon3 settings)
+    enc28j60WriteOp(ENC28J60_WRITE_BUF_MEM, 0, 0x00);
 }
 
+void enc28j60_PutData(uint16_t len, uint8_t* pBuf)
+{
+    // copy the packet into the transmit buffer
+    enc28j60WriteBuffer(len, pBuf);
+}
+
+void enc28j60_Fill(uint8_t len)
+{
+    ENC_SELECT();
+    hal_enc28j60exchg(ENC28J60_WRITE_BUF_MEM);         // issue write command
+    while(len--)
+        hal_enc28j60exchg(0);
+    ENC_RELEASE();
+}
+
+void enc28j60_Send(void)
+{
+    // send the contents of the transmit buffer onto the network
+    enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRTS);
+}
+
+
+/*
 void enc28j60PacketSend(uint16_t len, uint8_t* packet)
 {
   // Check no transmit in progress
@@ -268,6 +303,7 @@ void enc28j60PacketSend(uint16_t len, uint8_t* packet)
   // send the contents of the transmit buffer onto the network
   enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRTS);
 }
+*/
 
 bool en28j60_DataRdy(void)
 {
@@ -360,6 +396,15 @@ uint16_t enc28j60_GetPacketLen(void)
 void enc28j60_GetPacket(uint8_t * pBuf, uint16_t len)
 {
   enc28j60ReadBuffer(len, pBuf);
+}
+
+void enc28j60_Skip(uint16_t len)
+{
+    ENC_SELECT();
+    hal_enc28j60exchg(ENC28J60_READ_BUF_MEM);   // issue read command
+    while(len--)
+        hal_enc28j60exchg(0);                   // skip data
+    ENC_RELEASE();
 }
 
 void enc28j60_ClosePacket(void)

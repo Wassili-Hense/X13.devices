@@ -122,12 +122,7 @@ static const uint8_t cc11config[][2] =
 };
 
 static uint8_t          cc11s_NodeID;
-
 static Queue_t          cc11_tx_queue = {NULL, NULL, 0, 0};
-
-static uint8_t          cc11_tx_delay = 0;
-static uint8_t          cc11_tx_retry = 16;
-
 static uint8_t          cc11_rssi;
 
 void     hal_cc11_init_hw(void);
@@ -166,8 +161,13 @@ static uint8_t cc11_readReg(uint8_t Addr)
     return retval;
 }
 
+#define CC11_TX_RETRYS  64
+
 static void cc11_tx_task(void)
 {
+    static uint8_t cc11_tx_delay = 0;
+    static uint8_t cc11_tx_retry = CC11_TX_RETRYS;
+
     if(cc11_tx_queue.Size == 0)
         return;
 
@@ -186,12 +186,12 @@ static void cc11_tx_task(void)
             cc11_tx_delay = (cc11s_NodeID>>1) + (halRNG() & 0x7F);
             return;
         }
-        cc11_cmdStrobe(CC11_SIDLE);     // Enter to the IDLE state
-        cc11_cmdStrobe(CC11_SFRX);
+        //cc11_cmdStrobe(CC11_SIDLE);     // Enter to the IDLE state
+        //cc11_cmdStrobe(CC11_SFRX);
     }
 
     cc11_tx_delay = 0;
-    cc11_tx_retry = 16;
+    cc11_tx_retry = CC11_TX_RETRYS;
 
     MQ_t * pTxBuf = mqDequeue(&cc11_tx_queue);
     if(pTxBuf == NULL)      // Queue Busy
@@ -331,8 +331,6 @@ void CC11_Send(void *pBuf)
         mqFree(pBuf);
 }
 
-volatile uint8_t marcs;
-
 void * CC11_Get(void)
 {
     uint8_t marcs = cc11_readReg(CC11_MARCSTATE | CC11_STATUS_REGISTER);
@@ -354,6 +352,7 @@ void * CC11_Get(void)
     return NULL;
 }
 
+#if ((CC11_PHY == 2) && (defined PHY2_GetRSSI))
 uint8_t CC11_GetRSSI(void)
 {
     if(cc11_rssi & 0x80)
@@ -369,6 +368,12 @@ uint8_t CC11_GetRSSI(void)
         cc11_rssi = 74 - cc11_rssi;
     }
     return (~cc11_rssi + 1);
+}
+#endif  // GetRSSI
+
+void * CC11_GetAddr(void)
+{
+    return &cc11s_NodeID;
 }
 
 #endif  //  CC11_PHY

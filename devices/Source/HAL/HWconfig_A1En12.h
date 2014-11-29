@@ -56,7 +56,6 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define DIO_PORT_SIZE               8
 #define EXTDIO_BASE_OFFSET          2
 #define EXTDIO_MAXPORT_NR           2                                     // Number of digital Ports
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTC, (uint16_t)&PORTD}
@@ -83,6 +82,16 @@ extern "C" {
 #define TWIM_SCL_STAT()             (PINC & (1<<PC5))
 // End TWI Section
 
+// UART Section
+#define UART0_PORT                  PORTD
+#define UART0_DDR                   DDRD
+#define UART0_RX_PIN                PD0
+#define UART0_TX_PIN                PD1
+
+#define EXTSER_USED                 1
+#define EXTSER_PORT2UART            {0}
+// End UART Section
+
 // LEDs
 #define LED1_On()                   PORTB &= ~(1<<PB0)
 #define LED1_Off()                  PORTB |= (1<<PB0)
@@ -99,7 +108,6 @@ extern "C" {
 
 #define ENC_SELECT()                (PORTB &= ~(1<<LAN_PIN_SS))
 #define ENC_RELEASE()               (PORTB |= (1<<LAN_PIN_SS))
-#define inet_addr(d,c,b,a)          (((uint32_t)a<<24) | ((uint32_t)b << 16) | ((uint32_t)c<<8)  | ((uint32_t)d))
 // End LAN Section
 
 #define ENC28J60_PHY                1
@@ -117,8 +125,8 @@ extern "C" {
 #define OD_DEV_HW_TYP_L             '2'
 #define OD_ADDR_TYPE                objUInt32
 #define OD_DEV_MAC                  {0x00,0x04,0xA3,0x00,0x00,0x05}   // MAC MSB->LSB
-#define OD_DEF_IP_ADDR              inet_addr(192,168,10,205)
-#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
+//#define OD_DEF_IP_ADDR              inet_addr(192,168,10,205)
+//#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
 //#define OD_DEF_IP_ROUTER            inet_addr(192,168,10,1)
 //#define OD_DEF_IP_BROKER            inet_addr(192,168,20,8)
 
@@ -127,6 +135,7 @@ extern "C" {
 #define PHY1_Init                   ENC28J60_Init
 #define PHY1_Send                   ENC28J60_Send
 #define PHY1_Get                    ENC28J60_Get
+#define PHY1_GetAddr                ENC28J60_GetAddr
 #define PHY1_NodeId                 objIPAddr
 #define PHY1_GateId                 objIPBroker
 

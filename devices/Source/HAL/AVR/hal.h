@@ -23,10 +23,10 @@ extern "C" {
 #define eeprom_write(pBuf, Addr, Len) eeprom_write_block((const void *)pBuf, (void *)Addr, (size_t)Len)
 
 // AVR Architecture specifics.
-#define portPOINTER_SIZE_TYPE       uintptr_t
+#define DIO_PORT_SIZE               8
 #define portBYTE_ALIGNMENT          1
-
-#define configTOTAL_HEAP_SIZE       1024    // ATMega328P
+#define portPOINTER_SIZE_TYPE       uintptr_t
+#define configTOTAL_HEAP_SIZE       1024
 
 void StartSheduler(void);
 

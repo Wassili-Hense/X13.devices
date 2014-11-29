@@ -2,23 +2,26 @@
 
 #include <avr/interrupt.h>
 
-/* Hardware constants for timer 2. */
-#define halCLOCK_CONFIG                 0x07
-#define halCLOCK_PRESCALER              1024UL
-
-// halCLOCK_CONFIG
-// 1 - halCLOCK_PRESCALER = 1
-// 2 - halCLOCK_PRESCALER = 8
-// 3 - halCLOCK_PRESCALER = 32
-// 4 - halCLOCK_PRESCALER = 64
-// 5 - halCLOCK_PRESCALER = 128
-// 6 - halCLOCK_PRESCALER = 256
-// 7 - halCLOCK_PRESCALER = 1024
-
-#define halCLOCK_COMPARE_VALUE ((F_CPU/halCLOCK_PRESCALER/POLL_TMR_FREQ)-1)
-#if (halCLOCK_COMPARE_VALUE > 255) || (halCLOCK_COMPARE_VALUE < 60)
-#error Check F_CPU, POLL_TMR_FREQ and halCLOCK_PRESCALER
+// Hardware constants for timer 2.
+#if (((F_CPU/32/POLL_TMR_FREQ) - 1) < 255)
+#define halCLOCK_CONFIG     3
+#define halCLOCK_COMPARE_VALUE ((F_CPU/32/POLL_TMR_FREQ)-1)
+#elif (((F_CPU/64/POLL_TMR_FREQ) - 1) < 255)
+#define halCLOCK_CONFIG     4
+#define halCLOCK_COMPARE_VALUE ((F_CPU/64/POLL_TMR_FREQ)-1)
+#elif (((F_CPU/128/POLL_TMR_FREQ) - 1) < 255)
+#define halCLOCK_CONFIG     5
+#define halCLOCK_COMPARE_VALUE ((F_CPU/128/POLL_TMR_FREQ)-1)
+#elif (((F_CPU/256/POLL_TMR_FREQ) - 1) < 255)
+#define halCLOCK_CONFIG     6
+#define halCLOCK_COMPARE_VALUE ((F_CPU/256/POLL_TMR_FREQ)-1)
+#elif (((F_CPU/1024/POLL_TMR_FREQ) - 1) < 255)
+#define halCLOCK_CONFIG     7
+#define halCLOCK_COMPARE_VALUE ((F_CPU/1024/POLL_TMR_FREQ)-1)
+#else
+#error Check F_CPU and POLL_TMR_FREQ
 #endif
+
 
 void StartSheduler(void)
 {

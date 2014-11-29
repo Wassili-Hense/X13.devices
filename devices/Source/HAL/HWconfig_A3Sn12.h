@@ -62,7 +62,6 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define DIO_PORT_SIZE               8
 #define EXTDIO_MAXPORT_NR           4                                     // Number of digital Ports
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTD}
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x10, (uint8_t)0x83}
@@ -91,7 +90,7 @@ extern "C" {
 // LEDs
 #define LED1_On()                   PORTA |= (1<<PA0)
 #define LED1_Off()                  PORTA &= ~(1<<PA0)
-#define LEDsInit()                  {DDRA |= ((1<<PA0) | (1<<PA1)); PORTA |= (1<<PA0) | (1<<PA1);}
+#define LEDsInit()                  {DDRA |= ((1<<PA0)); PORTA |= (1<<PA0);}
 
 // UART Section
 #define UART0_PORT                  PORTD
@@ -127,6 +126,7 @@ extern "C" {
 #define PHY1_Init                   UART_Init
 #define PHY1_Send                   UART_Send
 #define PHY1_Get                    UART_Get
+#define PHY1_GetAddr                UART_GetAddr
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
 

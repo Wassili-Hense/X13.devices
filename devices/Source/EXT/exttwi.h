@@ -36,6 +36,12 @@ typedef struct
     uint8_t     data[];
 } TWI_FRAME_t;
 
+typedef struct sTWI_QUEUE
+{
+    struct  sTWI_QUEUE * pNext;
+    TWI_FRAME_t frame;
+}TWI_QUEUE_t;
+
 void twiInit(void);
 
 #ifdef __cplusplus

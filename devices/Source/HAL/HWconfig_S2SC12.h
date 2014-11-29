@@ -81,7 +81,6 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define DIO_PORT_SIZE               16
 #define EXTDIO_MAXPORT_NR           3
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB, GPIOC}
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0x0600, (uint16_t)0x0000, (uint16_t)0x0000}
@@ -89,6 +88,8 @@ extern "C" {
 
 // UART Section
 #define UART_PHY_PORT               0   //  0 - USART1 PA9,PA10 GPIOA MASK 0x0600, 1 - USART2 PA2,PA3 GPIO MASK 0x000C
+#define EXTSER_USED                 1
+#define EXTSER_PORT2UART            {1}
 // End UART Section
 
 // CC11 Section
@@ -162,6 +163,7 @@ extern "C" {
 #define PHY1_Init                   UART_Init
 #define PHY1_Send                   UART_Send
 #define PHY1_Get                    UART_Get
+#define PHY1_GetAddr                UART_GetAddr
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
 
@@ -169,6 +171,7 @@ extern "C" {
 #define PHY2_Send                   CC11_Send
 #define PHY2_Get                    CC11_Get
 #define PHY2_GetRSSI                CC11_GetRSSI
+#define PHY2_GetAddr                CC11_GetAddr
 #define PHY2_NodeId                 objRFNodeId
 
 #ifdef __cplusplus

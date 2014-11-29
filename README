@@ -9,5 +9,5 @@ Automation System oriented to "Smart House" over MQTT(SN) protocol
 
 Config      - Device description files
 devices     - MQTT-SN client Version 4
-Host.V4     - Host for V0.pre4, compatible with v0.3
+Host.V3M    - Host for V0.pre4, compatible with v0.3
 Wireshark   - MQTT-SN dissector plugin for Wireshark

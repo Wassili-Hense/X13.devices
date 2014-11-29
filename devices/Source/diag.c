@@ -4,22 +4,19 @@
 
 #define DIAG_DEF_TIMEOUT    (300 * POLL_TMR_FREQ)
 
-static uint16_t diag_timeout;
+static uint32_t diag_timeout;
 
 void DIAG_Init(void)
 {
-    diag_timeout = DIAG_DEF_TIMEOUT;
+    diag_timeout = GetTickCounter() + DIAG_DEF_TIMEOUT;
 }
 
 void DIAG_Poll(void)
 {
-    if(diag_timeout > 0)
-    {
-        diag_timeout--;
+    if(diag_timeout > GetTickCounter())
         return;
-    }
     
-    diag_timeout = DIAG_DEF_TIMEOUT;
+    diag_timeout = GetTickCounter() + DIAG_DEF_TIMEOUT;
     
     MQ_t * pMessage = mqAlloc(sizeof(MQ_t));
     if(pMessage == NULL)
@@ -39,6 +36,5 @@ void DIAG_Poll(void)
     
     mqttsn_trace_msg(lvlINFO, pMessage);
 }
-
 
 #endif  //  DIAG_USED

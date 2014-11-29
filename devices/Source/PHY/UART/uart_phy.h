@@ -17,5 +17,6 @@ See LICENSE file for license details.
 void UART_Init(void);
 void UART_Send(void *pBuf);
 void * UART_Get(void);
+void * UART_GetAddr(void);
 
 #endif  //  _UART_PHY_H
