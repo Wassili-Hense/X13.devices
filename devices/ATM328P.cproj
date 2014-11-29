@@ -264,6 +264,12 @@
     <Compile Include="Source\EXT\exttwi.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\EXT\thermostat.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\EXT\thermostat.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\HAL\AVR\HAL.c">
       <SubType>compile</SubType>
     </Compile>

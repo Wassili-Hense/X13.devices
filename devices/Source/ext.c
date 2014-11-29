@@ -44,14 +44,12 @@ void extInit(void)
 #ifdef EXTTWI_USED
     twiInit();
 #endif
-<<<<<<< HEAD
-  tsConfig();
-=======
+
+  tsConfig();		// Thermostat
 
 #ifdef EXTSER_USED
     serInit();
 #endif  //  EXTSER_USED
->>>>>>> origin/Version3
 }
 
 // Check Subindex: 0 - free / 1 - busy / 2 - invalid
