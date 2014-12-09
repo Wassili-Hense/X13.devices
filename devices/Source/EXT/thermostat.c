@@ -6,9 +6,11 @@
 #define MOTOR_OVR	PORTD6
 #define MOTOR_PLUS	PORTD7
 
+extern int16_t ain_act_val[];
+extern uint8_t dio_status[];
 static uint8_t tsWrite(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
-//static uint8_t tsPoolAct(subidx_t * pSubidx, uint8_t sleep);
-//static uint8_t tsReadAct(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);
+static uint8_t tsPoolAct(subidx_t * pSubidx, uint8_t sleep);
+static uint8_t tsReadAct(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);
 
 enum {
   TS_STATE_PREINIT=0,
@@ -21,112 +23,173 @@ enum {
   TS_STATE_RUN_POS,
 } tsSTATE_E;
 static uint8_t tsState=TS_STATE_PREINIT;
-static uint8_t tsPrcntExp;
 static int32_t tsTCnt;
 static int32_t tsCalibrate;
 static int32_t tsPosCur;
 static int32_t tsRefPath;
 static int32_t tsPosExp;
+static uint16_t tsPosExpS;
+static int16_t tsPosTolerance;
+
+static int16_t tsTust;
+static int16_t tsPidPrevAct;
+static int32_t tsPidCnt;
+static int32_t tsPidIVal;
 
 
 void tsConfig(void){
+  DDRD |= (1<<MOTOR_MINUS) | (1<<MOTOR_PLUS);
+  PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
+
+  tsTust = 14000; // 23,5*32768/55;
+  tsPosTolerance=128;
+  
   indextable_t * pIndex;
-  pIndex = getFreeIdxOD();
+  pIndex = getFreeIdxOD();    // In27
   if(pIndex!=NULL){
+    pIndex->sidx.Place = objDin;
+    pIndex->sidx.Type =  objPinNPN;
+    pIndex->sidx.Base = 27;
+  }
+
+  pIndex = getFreeIdxOD();    // Ai6
+  if(pIndex!=NULL){
+    pIndex->sidx.Place = objAin;
+    pIndex->sidx.Type =  objArefInt1;
+    pIndex->sidx.Base = 6;
+  }
+  
+  pIndex = getFreeIdxOD();  // Tust/55*32768
+  if(pIndex!=NULL){       
     pIndex->cbRead  =  NULL;
     pIndex->cbWrite =  &tsWrite;
     pIndex->cbPoll  =  NULL;
     pIndex->sidx.Place = objUsrExt;
-    pIndex->sidx.Type =  objUInt8;
-    pIndex->sidx.Base = 26;
+    pIndex->sidx.Type =  objInt16;
+    pIndex->sidx.Base = 35;
   }
   
-  //pIndex = getFreeIdxOD();
-  //if(pIndex!=NULL){
-  //pIndex->cbRead  =  &tsReadAct;
-  //pIndex->cbWrite =  NULL;
-  //pIndex->cbPoll  =  &tsPoolAct;
-  //pIndex->sidx.Place = objUsrExt;
-  //pIndex->sidx.Type =  objInt16;
-  //pIndex->sidx.Base = 4;
-  //}
-  
-  DDRD |= (1<<MOTOR_MINUS) | (1<<MOTOR_PLUS);
-  PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
+  pIndex = getFreeIdxOD();  // PosExp
+  if(pIndex!=NULL){
+    pIndex->cbRead  =  &tsReadAct;
+    pIndex->cbWrite =  NULL;
+    pIndex->cbPoll  =  &tsPoolAct;
+    pIndex->sidx.Place = objUsrExt;
+    pIndex->sidx.Type =  objUInt16;
+    pIndex->sidx.Base = 36;
+  }
 }
 void tsTick(){
+  // ain_act_val[6]
+  // dio_status[1] & 8
+
+  if((dio_status[1] & 8)==0){  // Door is open
+    tsPidCnt=-100000L; // 1000 sec
+    tsPosExp=0;
+  } else {
+    tsPidCnt++;
+  }
+  if(tsPidCnt>=0){
+    int16_t tAct=ain_act_val[6];
+    int16_t e=tAct-tsTust;
+    tsPidIVal+=e;
+    if(tsPidIVal>(tsCalibrate<<10)){
+      tsPidIVal=(tsCalibrate<<10);
+    } else if(tsPidIVal<0){
+      tsPidIVal=0;
+    }
+    if(tsPidCnt>13500){  // 135 sec
+      int32_t tmp;
+      tmp=(tsPidIVal>>10)+(e<<3)+(tsPidPrevAct-tAct);
+      tsPidPrevAct=tAct;
+      tsPidCnt=0;
+      if(tmp>tsCalibrate){
+        tmp=tsCalibrate;
+      } else if(tmp<0){
+        tmp=0;
+      }
+      tsPosExp=(tsPosExp*3+tmp)<<2;
+      if(tsPosTolerance>8){
+        tsPosTolerance>>=1;
+      } else{
+        tsPosTolerance=8;
+      }
+    }
+  }
   switch(tsState){
-  case TS_STATE_PREINIT:
+    case TS_STATE_PREINIT:
     tsTCnt=256;
     tsPosCur=-1;
     tsState=TS_STATE_INIT;
     tsCalibrate=0;
     break;
-  case TS_STATE_INIT:
+    case TS_STATE_INIT:
     if(--tsTCnt==0){
       tsState=TS_STATE_REF_NEG;
       tsTCnt=48;
       PORTD|=1<<MOTOR_PLUS;
     }
     break;
-  case TS_STATE_REF_NEG:
+    case TS_STATE_REF_NEG:
     if(tsTCnt>0){
       tsTCnt--;
-    } else if((PIND & (1<<MOTOR_OVR))!=0){
+      } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD&=~(1<<MOTOR_PLUS);
       PORTD|=1<<MOTOR_MINUS;
       tsState=TS_STATE_REF_POS;
     }
     break;
-  case TS_STATE_REF_POS:
+    case TS_STATE_REF_POS:
     tsTCnt++;
     if(tsTCnt>48 && (PIND & (1<<MOTOR_OVR))!=0){
       PORTD&=~(1<<MOTOR_MINUS);
       tsState=TS_STATE_WAIT;
       tsCalibrate=tsTCnt;
+      tsPidIVal=tsCalibrate<<8;  // initial value=1/4
       tsPosCur=0;
       tsPosExp=0;
-	  tsRefPath=0;
-      tsPosExp=((tsCalibrate*tsPrcntExp)>>8);
+      tsRefPath=0;
     }
     break;
-  case TS_STATE_WAIT:
-    if(tsPosExp-32>tsPosCur){
+    case TS_STATE_WAIT:
+    if(tsPosExp-tsPosTolerance>tsPosCur){
       tsTCnt=48;
+      tsPosTolerance=128;
       PORTD &= ~(1<<MOTOR_MINUS);
       PORTD|=1<<MOTOR_PLUS;
       tsState=TS_STATE_RUN_POS;
-    } else if(tsPosExp+32<tsPosCur){
+    } else if(tsPosExp+tsPosTolerance<tsPosCur){
       tsTCnt=48;
+      tsPosTolerance=128;
       PORTD &= ~(1<<MOTOR_PLUS);
       PORTD|=1<<MOTOR_MINUS;
       if(tsPosExp<(tsRefPath>>2)){
-		tsRefPath=0;
+        tsRefPath=0;
         tsState=TS_STATE_RUN_ZERO;
       }else{
         tsState=TS_STATE_RUN_NEG;
       }
     }
     break;
-  case TS_STATE_RUN_ZERO:
+    case TS_STATE_RUN_ZERO:
     tsPosCur--;
     if(tsTCnt>0){
       tsTCnt--;
-    } else if((PIND & (1<<MOTOR_OVR))!=0){
+      } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
       tsPosCur=0;
       tsState=TS_STATE_WAIT;
     }
     break;
-  case TS_STATE_RUN_NEG:
+    case TS_STATE_RUN_NEG:
     tsPosCur--;
-	tsRefPath++;
+    tsRefPath++;
     if(tsTCnt>0){
       tsTCnt--;
     } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
       tsPosCur=0;
-	  tsRefPath=0;
+      tsRefPath=0;
       tsState=TS_STATE_WAIT;
     }
     if(tsPosCur<=tsPosExp){
@@ -134,11 +197,11 @@ void tsTick(){
       tsState=TS_STATE_WAIT;
     }
     break;
-  case TS_STATE_RUN_POS:
+    case TS_STATE_RUN_POS:
     tsPosCur++;
     if(tsTCnt>0){
       tsTCnt--;
-    } else if((PIND & (1<<MOTOR_OVR))!=0){
+      } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
       tsPosCur=tsCalibrate;
       tsState=TS_STATE_WAIT;
@@ -153,18 +216,22 @@ void tsTick(){
 
 
 static uint8_t tsWrite(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf){
-  tsPrcntExp=pBuf[0];
-  if(tsCalibrate!=0){
-    tsPosExp=((tsCalibrate*tsPrcntExp)>>8);
+  int16_t tmp=((int16_t)pBuf[1]<<8) | pBuf[0];
+  if(tmp>9532){  // t>16 && t<30
+    tsTust=tmp<17873?tmp:17873;
   }
+  //tsPrcntExp=pBuf[0];
+  //if(tsCalibrate!=0){
+  //tsPosExp=((tsCalibrate*tsPrcntExp)>>8);
+  //}
   return MQTTSN_RET_ACCEPTED;
 }
-//static uint8_t tsPoolAct(subidx_t * pSubidx, uint8_t sleep){
-//return (tsPosCur!=tsPosCurS)?1:0;
-//}
-//static uint8_t tsReadAct(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf){
-//*pLen = 2;
-//*(int16_t *)pBuf = tsPosCur;
-//tsPosCurS=tsPosCur;
-//return MQTTS_RET_ACCEPTED;
-//}
+static uint8_t tsPoolAct(subidx_t * pSubidx, uint8_t sleep){
+  return ((uint16_t)tsPosExp!=tsPosExpS)?1:0;
+}
+static uint8_t tsReadAct(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf){
+  tsPosExpS=(uint16_t)tsPosExp;
+  *pLen = 2;
+  *(uint16_t *)pBuf = tsPosExpS;
+  return MQTTSN_RET_ACCEPTED;
+}
