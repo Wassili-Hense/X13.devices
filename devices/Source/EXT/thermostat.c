@@ -24,11 +24,11 @@ enum {
   TS_STATE_RUN_POS,
 } tsSTATE_E;
 static uint8_t tsState;
-static int32_t tsTCnt;
-static int32_t tsCalibrate;
-static int32_t tsPosCur;
+static int16_t tsTCnt;
+static int16_t tsCalibrate;
+static int16_t tsPosCur;
 static int32_t tsRefPath;
-static int32_t tsPosExp;
+static int16_t tsPosExp;
 static uint16_t tsPosExpS;
 static int16_t tsPosTolerance;
 
@@ -43,7 +43,7 @@ void tsConfig(void){
   PORTD &= ~((1<<MOTOR_OVR) | (1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
 
   tsTust = 13700; // 23*32768/55;
-  tsPosTolerance=128;
+  tsPosTolerance=512;
   
   indextable_t * pIndex;
   pIndex = getFreeIdxOD();    // In27
@@ -64,7 +64,7 @@ void tsConfig(void){
   }
   
   pIndex = getFreeIdxOD();  // Tust/55*32768
-  if(pIndex!=NULL){       
+  if(pIndex!=NULL){
     pIndex->cbRead  =  NULL;
     pIndex->cbWrite =  &tsWrite;
     pIndex->cbPoll  =  NULL;
@@ -86,28 +86,33 @@ void tsConfig(void){
   tsState=TS_STATE_PREINIT;
 }
 void tsTick(){
-  // ain_act_val[6]
-  // dio_status[1] & 8
-
-  if((dio_status[1] & 8)!=0 && tsPidCnt>-80000L){  // Door is open
-    tsPidCnt=-100000L; // 1000 sec
-    tsPosExp=0;
-    tsPidPrevAct=ain_act_val[6];
+  if((dio_status[1] & 8)!=0){  // Door is open
+    if(tsPidCnt>0){
+      tsPidCnt=0;
+      tsPosExp=0;
+    } else if(tsPidCnt>-300000L){
+      int16_t d=(tsTust-ain_act_val[6])/256;
+      if(d>=0){
+        d=-1;
+      }
+      tsPidCnt+=d;
+    }
   } else {
     tsPidCnt++;
   }
   if(tsPidCnt>=0 && (tsPidCnt&0xFF)==0){
     int16_t tAct=ain_act_val[6];
     int16_t e=tsTust-tAct;
-    tsPidIVal+=e/2;
-    if(tsPidIVal>=(tsCalibrate*1024)){
-      tsPidIVal=(tsCalibrate*1024)-1;
+    tsPidIVal+=e/32;
+    if(tsPidIVal>=((int32_t)tsCalibrate*1024)){
+      tsPidIVal=((int32_t)tsCalibrate*1024)-1;
     } else if(tsPidIVal<0){
       tsPidIVal=0;
     }
-    if(tsPidCnt>13567){  // 135.67 sec
-      int32_t tmp;
-      tmp=tsPidIVal/1024+e/2+(tsPidPrevAct-tAct)/3;
+    if(tsPidCnt>10000){  // 100 sec
+      int16_t tmp;
+      int16_t tmp2=tsPidPrevAct-tAct;
+      tmp=tsPidIVal/1024+e/2+tmp2/16;
       tsPidPrevAct=tAct;
       tsPidCnt=0;
       if(tmp>=tsCalibrate){
@@ -115,12 +120,25 @@ void tsTick(){
       } else if(tmp<0){
         tmp=0;
       }
-      tsPosExp=(tsPosExp+tmp)/2;
-      if(tsPosTolerance>8){
-        tsPosTolerance/=2;
+      tsPosExp=tmp;
+      if(tsPosTolerance>16){
+        tsPosTolerance-=tsPosTolerance/4;
       } else{
-        tsPosTolerance=8;
+        tsPosTolerance=16;
       }
+    }
+  } else if(tsPidCnt<0){
+    int16_t tmp=7149-ain_act_val[6];  // 12 °C
+    if(tmp>=tsCalibrate){
+      tmp=tsCalibrate-1;
+      } else if(tmp<0){
+      tmp=0;
+    }
+    tsPosExp=tmp;
+    if(tsPosTolerance>16){
+      tsPosTolerance-=tsPosTolerance/8;
+    } else{
+      tsPosTolerance=16;
     }
   }
   switch(tsState){
@@ -140,7 +158,7 @@ void tsTick(){
     case TS_STATE_REF_NEG:
     if(tsTCnt>0){
       tsTCnt--;
-    } else if((PIND & (1<<MOTOR_OVR))!=0){
+      } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD&=~(1<<MOTOR_PLUS);
       PORTD|=1<<MOTOR_MINUS;
       tsState=TS_STATE_REF_POS;
@@ -148,7 +166,7 @@ void tsTick(){
     break;
     case TS_STATE_REF_POS:
     tsTCnt++;
-    if(tsTCnt>48 && (PIND & (1<<MOTOR_OVR))!=0){
+    if((tsTCnt>48 && (PIND & (1<<MOTOR_OVR))!=0) || tsTCnt>10000){
       PORTD&=~(1<<MOTOR_MINUS);
       tsState=TS_STATE_WAIT;
       tsCalibrate=tsTCnt;
@@ -165,19 +183,19 @@ void tsTick(){
     case TS_STATE_WAIT:
     if(tsPosExp-tsPosTolerance>tsPosCur){
       tsTCnt=48;
-      tsPosTolerance=128;
+      tsPosTolerance=512;
       PORTD &= ~(1<<MOTOR_MINUS);
       PORTD|=1<<MOTOR_PLUS;
       tsState=TS_STATE_RUN_POS;
-    } else if(tsPosExp+tsPosTolerance<tsPosCur){
+      } else if(tsPosExp+tsPosTolerance<tsPosCur){
       tsTCnt=48;
-      tsPosTolerance=128;
+      tsPosTolerance=512;
       PORTD &= ~(1<<MOTOR_PLUS);
       PORTD|=1<<MOTOR_MINUS;
       if(tsPosExp<(tsRefPath>>2)){
         tsRefPath=0;
         tsState=TS_STATE_RUN_ZERO;
-      }else{
+        }else{
         tsState=TS_STATE_RUN_NEG;
       }
     }
@@ -186,7 +204,7 @@ void tsTick(){
     tsPosCur--;
     if(tsTCnt>0){
       tsTCnt--;
-    } else if((PIND & (1<<MOTOR_OVR))!=0){
+      } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
       tsPosCur=0;
       tsState=TS_STATE_WAIT;
@@ -197,7 +215,7 @@ void tsTick(){
     tsRefPath++;
     if(tsTCnt>0){
       tsTCnt--;
-    } else if((PIND & (1<<MOTOR_OVR))!=0){
+      } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
       tsPosCur=0;
       tsRefPath=0;
@@ -212,7 +230,7 @@ void tsTick(){
     tsPosCur++;
     if(tsTCnt>0){
       tsTCnt--;
-    } else if((PIND & (1<<MOTOR_OVR))!=0){
+      } else if((PIND & (1<<MOTOR_OVR))!=0){
       PORTD &= ~((1<<MOTOR_MINUS) | (1<<MOTOR_PLUS));
       tsPosCur=tsCalibrate;
       tsState=TS_STATE_WAIT;
@@ -228,16 +246,16 @@ void tsTick(){
 
 static uint8_t tsWrite(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf){
   int16_t tmp=((int16_t)pBuf[1]<<8) | pBuf[0];
-  if(tmp>9532){  // t>16 && t<30
+  if(tmp>9532){  // t>16 °C && t<30 °C
     tsTust=tmp<17873?tmp:17873;
   }
   return MQTTSN_RET_ACCEPTED;
 }
 static uint8_t tsPoolAct(subidx_t * pSubidx, uint8_t sleep){
-  return ((uint16_t)tsPosExp!=tsPosExpS)?1:0;
+  return (tsState==TS_STATE_WAIT && (uint16_t)tsPosCur!=tsPosExpS)?1:0;
 }
 static uint8_t tsReadAct(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf){
-  tsPosExpS=(uint16_t)tsPosExp;
+  tsPosExpS=(uint16_t)tsPosCur;
   *pLen = 2;
   *(uint16_t *)pBuf = tsPosExpS;
   return MQTTSN_RET_ACCEPTED;
