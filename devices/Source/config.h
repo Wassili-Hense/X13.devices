@@ -69,6 +69,8 @@ extern "C" {
 // ATM2560
 #elif   (defined CFG_A4En12)
 #include "HAL/HWconfig_A4En12.h"
+#elif   (defined CFG_A4ES12)
+#include "HAL/HWconfig_A4ES12.h"
 #elif   (defined CFG_A4Sn12)
 #include "HAL/HWconfig_A4Sn12.h"
 // STM32F051
