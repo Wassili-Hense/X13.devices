@@ -122,7 +122,7 @@ extern "C" {
                                      (uint16_t)&PORTE, (uint16_t)&PORTF, (uint16_t)&PORTG, (uint16_t)&PORTH,  \
                                      (uint16_t)&PORTJ, (uint16_t)&PORTK, (uint16_t)&PORTL}
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0x00, (uint8_t)0x0F, (uint8_t)0x00, (uint8_t)0x73,  \
-                                     (uint8_t)0xC7, (uint8_t)0xF0, (uint8_t)0xD8, (uint8_t)0x84,  \
+                                     (uint8_t)0xC4, (uint8_t)0xF0, (uint8_t)0xD8, (uint8_t)0x84,  \
                                      (uint8_t)0xFC, (uint8_t)0x00, (uint8_t)0x00}
 // End DIO Section
 #define EXTPWM_USED                 1

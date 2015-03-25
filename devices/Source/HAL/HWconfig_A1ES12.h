@@ -62,7 +62,7 @@ extern "C" {
 #define EXTDIO_BASE_OFFSET          2
 #define EXTDIO_MAXPORT_NR           2                                     // Number of digital Ports
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTC, (uint16_t)&PORTD}
-#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xE0, (uint8_t)0x03}
+#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x03}
 // End DIO Section
 
 // PWM Section
@@ -161,4 +161,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_A1EN12_H
+#endif // HWCONFIG_A1ES12_H
