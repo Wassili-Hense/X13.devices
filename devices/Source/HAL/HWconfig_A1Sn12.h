@@ -60,7 +60,7 @@ extern "C" {
 #define EXTDIO_BASE_OFFSET          1
 #define EXTDIO_MAXPORT_NR           3                                     // Number of digital Ports
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
-#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0xE0, (uint8_t)0x03}
+#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0xC0, (uint8_t)0x03}
 // End DIO Section
 
 // PWM Section
