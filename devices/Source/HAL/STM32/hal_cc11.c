@@ -4,8 +4,6 @@
 
 void hal_cc11_init_hw(void)
 {
-    GPIO_InitTypeDef  GPIO_InitStructure;
-
     // Enable Periphery Clocks
 #if   (CC11_USE_SPI == 1)
     RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
@@ -14,31 +12,14 @@ void hal_cc11_init_hw(void)
 #endif  //  CC11_USE_SPI
 
     // ENC_NSS_PIN
-    GPIO_InitStructure.GPIO_Pin     = CC11_NSS_PIN;
-#if (defined __STM32F0XX_H)
-    GPIO_InitStructure.GPIO_Mode    = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType   = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd    = GPIO_PuPd_NOPULL;
-#elif (defined __STM32F10x_H)
-    GPIO_InitStructure.GPIO_Mode    = GPIO_Mode_Out_PP;
-#endif
-    GPIO_InitStructure.GPIO_Speed   = GPIO_Speed_50MHz;
-    GPIO_Init(CC11_NSS_PORT, &GPIO_InitStructure);
-
+    hal_dio_gpio_cfg(CC11_NSS_PORT, CC11_NSS_PIN, DIO_MODE_OUT_HS);
     CC11_NSS_PORT->BSRR = CC11_NSS_PIN;
 
     // Configure SPI pins
-    GPIO_InitStructure.GPIO_Pin     = SPIc_SCK_PIN | SPIc_MISO_PIN | SPIc_MOSI_PIN;
 #if (defined __STM32F0XX_H)
-    GPIO_InitStructure.GPIO_Mode    = GPIO_Mode_AF;
+    hal_dio_gpio_cfg(SPIc_PORT, (SPIc_SCK_PIN | SPIc_MISO_PIN | SPIc_MOSI_PIN), DIO_MODE_AF0);
 #elif (defined __STM32F10x_H)
-    GPIO_InitStructure.GPIO_Mode    = GPIO_Mode_AF_PP;
-#endif
-    GPIO_Init(SPIc_PORT, &GPIO_InitStructure);
-#if (defined __STM32F0XX_H)
-    GPIO_PinAFConfig(SPIc_PORT, SPIc_SCK_PINSRC,  GPIO_AF_0);
-    GPIO_PinAFConfig(SPIc_PORT, SPIc_MISO_PINSRC, GPIO_AF_0);
-    GPIO_PinAFConfig(SPIc_PORT, SPIc_MOSI_PINSRC, GPIO_AF_0);
+    #error hal_cc11_init_hw, SPI Pin configuration
 #endif
 
 #if (defined __STM32F0XX_H)

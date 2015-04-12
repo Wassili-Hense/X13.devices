@@ -97,6 +97,23 @@ extern "C" {
 // Time Counters
 uint32_t GetTickCounter();
 
+
+// Global Definitions
+// GPIO Types
+typedef enum
+{
+    DIO_MODE_IN_FLOAT = 0,
+    DIO_MODE_IN_PD,
+    DIO_MODE_IN_PU,
+    DIO_MODE_OUT,
+    DIO_MODE_PWM,
+    DIO_MODE_AIN,
+    // ARM Specific definition
+    DIO_MODE_OUT_HS,
+    DIO_MODE_AF0,
+    DIO_MODE_AF1
+}eDIOmode_t;
+
 #ifdef __cplusplus
 }
 #endif

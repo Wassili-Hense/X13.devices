@@ -32,7 +32,6 @@ void halLeaveCritical(void);
 #define ENTER_CRITICAL_SECTION      halEnterCritical
 #define LEAVE_CRITICAL_SECTION      halLeaveCritical
 
-
 // Hardware specific options
 #define DIO_PORT_SIZE               16
 #define portBYTE_ALIGNMENT          8
@@ -55,6 +54,10 @@ void halLeaveCritical(void);
 #define GPIO_Pin_13                ((uint16_t)0x2000)  /*!< Pin 13 selected */
 #define GPIO_Pin_14                ((uint16_t)0x4000)  /*!< Pin 14 selected */
 #define GPIO_Pin_15                ((uint16_t)0x8000)  /*!< Pin 15 selected */
+
+// Configure GPIO
+// External procedure defined in hal_dio.c
+void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode);
 
 void StartSheduler(void);
 

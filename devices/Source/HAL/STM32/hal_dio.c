@@ -1,27 +1,9 @@
 #include "../../config.h"
 
-#ifdef EXTDIO_USED
-
-#include "../../EXT/extdio.h"
-
-static const GPIO_TypeDef * dio_pGPIOx[] = EXTDIO_PORTNUM2PORT;
-
-static GPIO_TypeDef * dioPortNr2GPIOx(uint8_t PortNr)
-{
-    if(PortNr < EXTDIO_MAXPORT_NR)
-        return (GPIO_TypeDef *)dio_pGPIOx[PortNr];
-
-    return NULL;
-}
-
-void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode)
+void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode)
 {
     uint16_t pinpos;
     uint32_t pos;
-    
-    GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
-    if(GPIOx == NULL)
-        return;
     
     for(pinpos = 0; pinpos < 0x10; pinpos++)
     {
@@ -36,7 +18,7 @@ void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode)
             // Output type - push/pull
             GPIOx->OTYPER &= ~((GPIO_OTYPER_OT_0) << pinpos);
             // default state input
-            GPIOx->MODER  &= ~(GPIO_MODER_MODER0 << pos));
+            GPIOx->MODER  &= ~(GPIO_MODER_MODER0 << pos);
             // without PullUp/Down
             GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << pos);
 
@@ -47,15 +29,54 @@ void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode)
                     break;
 
                 case DIO_MODE_IN_PD:            // Pull Down
-                    GPIOx->PUPDR |= (GPIO_PUPDR_PUPDR0_1 << pos));
+                    GPIOx->PUPDR |= (GPIO_PUPDR_PUPDR0_1 << pos);
                     break;
 
                 case DIO_MODE_OUT:              // General purpose output
-                    GPIOx->MODER |= (GPIO_MODER_MODER0_0 << pos));
+                    GPIOx->MODER |= (GPIO_MODER_MODER0_0 << pos);
+                    break;
+                    
+                case DIO_MODE_OUT_HS:           // General purpose output, High Speed
+                    GPIOx->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR0 << pos);      // High Speed
+                    GPIOx->MODER |= (GPIO_MODER_MODER0_0 << pos);
+                    break;
+
+                case DIO_MODE_AF0:              // Alternate functions 0, SPI
+                    GPIOx->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR0 << pos);      // High Speed
+                    GPIOx->MODER   |= (GPIO_MODER_MODER0_1 << pos);         // Alternate function mode                
+
+                    if(pinpos < 8)      // AFR0
+                    {
+                        pos = (pinpos << 2);
+                        GPIOx->AFR[0] &= ~((uint32_t)0x0000000F << pos);    // AF0
+                    }
+                    else                // AFR1
+                    {
+                        pos = ((pinpos - 8) << 2);
+                        GPIOx->AFR[1] &= ~((uint32_t)0x0000000F << pos);
+                    }
+                    break;
+
+                case DIO_MODE_AF1:              // Alternate functions 1, UART
+//                    GPIOx->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR0 << pos);      // High Speed
+                    GPIOx->MODER   |= (GPIO_MODER_MODER0_1 << pos);         // Alternate function mode                
+
+                    if(pinpos < 8)      // AFR0
+                    {
+                        pos = (pinpos << 2);
+                        GPIOx->AFR[0] &= ~((uint32_t)0x0000000F << pos);
+                        GPIOx->AFR[0] |= ((uint32_t)0x00000001 << pos);     // AF1
+                    }
+                    else                // AFR1
+                    {
+                        pos = ((pinpos - 8) << 2);
+                        GPIOx->AFR[1] &= ~((uint32_t)0x0000000F << pos);
+                        GPIOx->AFR[1] |= ((uint32_t)0x00000001 << pos);
+                    }
                     break;
 
                 case DIO_MODE_AIN:              // Analog Mode
-                    GPIOx->MODER |= (GPIO_MODER_MODER0 << pos));
+                    GPIOx->MODER |= (GPIO_MODER_MODER0 << pos);
                     break;
                 
 //                case DIO_MODE_IN_FLOAT:
@@ -81,6 +102,10 @@ void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode)
 
                 case DIO_MODE_OUT:              // General purpose output
                     gpio_cr = GPIO_CRL_MODE0_1; // General purpose output push-pull, slow (2MHz) speed
+                    break;
+                    
+                case DIO_MODE_OUT_HS:           // General purpose output, High Speed
+                    gpio_cr = GPIO_CRL_MODE0;   // General purpose output push-pull, High (50MHz) speed
                     break;
 
                 case DIO_MODE_AIN:              // Analog Mode
@@ -110,6 +135,27 @@ void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode)
 #endif
         }
     }
+}
+
+#ifdef EXTDIO_USED
+
+static const GPIO_TypeDef * dio_pGPIOx[] = EXTDIO_PORTNUM2PORT;
+
+static GPIO_TypeDef * dioPortNr2GPIOx(uint8_t PortNr)
+{
+    if(PortNr < EXTDIO_MAXPORT_NR)
+        return (GPIO_TypeDef *)dio_pGPIOx[PortNr];
+
+    return NULL;
+}
+
+void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode)
+{
+    GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
+    if(GPIOx == NULL)
+        return;
+
+    hal_dio_gpio_cfg(GPIOx, Mask, Mode);
 }
 
 uint16_t hal_dio_read(uint8_t PortNr)

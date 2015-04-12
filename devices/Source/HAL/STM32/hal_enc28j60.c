@@ -6,21 +6,15 @@
 
 #define SPIe_PORT                   GPIOA
 #define SPIe_SCK_PIN                GPIO_Pin_5
-#define SPIe_SCK_PINSRC             GPIO_PinSource5
 #define SPIe_MISO_PIN               GPIO_Pin_6
-#define SPIe_MISO_PINSRC            GPIO_PinSource6
 #define SPIe_MOSI_PIN               GPIO_Pin_7
-#define SPIe_MOSI_PINSRC            GPIO_PinSource7
 
 #elif (ENC_USE_SPI == 2)
 
 #define SPIe_PORT                   GPIOB
 #define SPIe_SCK_PIN                GPIO_Pin_13
-#define SPIe_SCK_PINSRC             GPIO_PinSource13
 #define SPIe_MISO_PIN               GPIO_Pin_14
-#define SPIe_MISO_PINSRC            GPIO_PinSource14
 #define SPIe_MOSI_PIN               GPIO_Pin_15
-#define SPIe_MOSI_PINSRC            GPIO_PinSource15
 
 #else
 #error unknown enc configuration
@@ -28,8 +22,6 @@
 
 void hal_enc28j60_init_hw(void)
 {
-    GPIO_InitTypeDef  GPIO_InitStructure;
-
     // Enable Periphery Clocks
 #if (ENC_USE_SPI == 1)
     RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
@@ -38,31 +30,14 @@ void hal_enc28j60_init_hw(void)
 #endif  //  ENC_USE_SPI
 
     // ENC_NSS_PIN
-    GPIO_InitStructure.GPIO_Pin     = ENC_NSS_PIN;
-#if (defined __STM32F0XX_H)
-    GPIO_InitStructure.GPIO_Mode    = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType   = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd    = GPIO_PuPd_NOPULL;
-#elif (defined __STM32F10x_H)
-    GPIO_InitStructure.GPIO_Mode    = GPIO_Mode_Out_PP;
-#endif
-    GPIO_InitStructure.GPIO_Speed   = GPIO_Speed_50MHz;
-    GPIO_Init(ENC_NSS_PORT, &GPIO_InitStructure);
-
+    hal_dio_gpio_cfg(ENC_NSS_PORT, ENC_NSS_PIN, DIO_MODE_OUT_HS);
     ENC_NSS_PORT->BSRR = ENC_NSS_PIN;
 
     // Configure SPI pins
-    GPIO_InitStructure.GPIO_Pin     = SPIe_SCK_PIN | SPIe_MISO_PIN | SPIe_MOSI_PIN;
 #if (defined __STM32F0XX_H)
-    GPIO_InitStructure.GPIO_Mode    = GPIO_Mode_AF;
+    hal_dio_gpio_cfg(SPIe_PORT, (SPIe_SCK_PIN | SPIe_MISO_PIN | SPIe_MOSI_PIN), DIO_MODE_AF0);
 #elif (defined __STM32F10x_H)
-    GPIO_InitStructure.GPIO_Mode    = GPIO_Mode_AF_PP;
-#endif
-    GPIO_Init(SPIe_PORT, &GPIO_InitStructure);
-#if (defined __STM32F0XX_H)
-    GPIO_PinAFConfig(SPIe_PORT, SPIe_SCK_PINSRC,  GPIO_AF_0);
-    GPIO_PinAFConfig(SPIe_PORT, SPIe_MISO_PINSRC, GPIO_AF_0);
-    GPIO_PinAFConfig(SPIe_PORT, SPIe_MOSI_PINSRC, GPIO_AF_0);
+    #error hal_enc28j60_init_hw, SPI Pin configuration
 #endif
 
 #if (defined __STM32F0XX_H)

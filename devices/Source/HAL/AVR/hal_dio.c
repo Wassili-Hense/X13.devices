@@ -2,8 +2,6 @@
 
 #ifdef EXTDIO_USED
 
-#include "../../EXT/extdio.h"
-
 const uint16_t dio_portnum2port[]  = EXTDIO_PORTNUM2PORT;
 
 void hal_dio_configure(uint8_t PortNr, uint8_t Mask, eDIOmode_t Mode)

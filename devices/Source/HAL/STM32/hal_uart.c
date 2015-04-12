@@ -170,13 +170,8 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
 
 #if (defined __STM32F0XX_H)
             uart_clock = RCC_ClocksStatus.USART1CLK_Frequency;
-            
-            GPIOA->MODER   |= GPIO_MODER_MODER9_1;          // PA9  (TX) - Alternate function mode
-            GPIOA->MODER   |= GPIO_MODER_MODER10_1;         // PA10 (RX) - Alternate function mode
-            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR9;       // PA9  (TX) - High speed
-            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR10;      // PA10 (RX) - High speed
-            GPIOA->AFR[1]  &= 0xF00F;
-            GPIOA->AFR[1]  |= 0x0110;                       // PA9, PA10 - AF1
+            hal_dio_gpio_cfg(GPIOA, (1<<9) | (1<<10), DIO_MODE_AF1);    // PA9, PA10 - AF1
+
 #elif (defined __STM32F10x_H)
             uart_clock = RCC_ClocksStatus.PCLK2_Frequency;
             
@@ -195,13 +190,8 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             
 #if (defined __STM32F0XX_H)
             uart_clock = RCC_ClocksStatus.PCLK_Frequency;
-            
-            GPIOA->MODER   |= GPIO_MODER_MODER2_1;          // PA2  (TX) - Alternate function mode
-            GPIOA->MODER   |= GPIO_MODER_MODER3_1;          // PA3  (RX) - Alternate function mode
-            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR2;       // PA2  (TX) - High speed
-            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;       // PA3  (RX) - High speed
-            GPIOA->AFR[0]  &= 0x00FF;
-            GPIOA->AFR[0]  |= 0x1100;                       // PA2, PA3  - AF1
+            hal_dio_gpio_cfg(GPIOA, (1<<2) | (1<<3), DIO_MODE_AF1);    // PA2, PA3 - AF1
+
 #elif (defined __STM32F10x_H)
             uart_clock = RCC_ClocksStatus.PCLK1_Frequency;
             
