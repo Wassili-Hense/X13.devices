@@ -34,11 +34,7 @@ void hal_enc28j60_init_hw(void)
     ENC_NSS_PORT->BSRR = ENC_NSS_PIN;
 
     // Configure SPI pins
-#if (defined __STM32F0XX_H)
     hal_dio_gpio_cfg(SPIe_PORT, (SPIe_SCK_PIN | SPIe_MISO_PIN | SPIe_MOSI_PIN), DIO_MODE_AF0);
-#elif (defined __STM32F10x_H)
-    #error hal_enc28j60_init_hw, SPI Pin configuration
-#endif
 
 #if (defined __STM32F0XX_H)
 #if (ENC_USE_SPI == 1)

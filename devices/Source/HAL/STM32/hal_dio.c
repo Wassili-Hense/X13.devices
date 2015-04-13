@@ -103,9 +103,17 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode)
                 case DIO_MODE_OUT:              // General purpose output
                     gpio_cr = GPIO_CRL_MODE0_1; // General purpose output push-pull, slow (2MHz) speed
                     break;
-                    
+
                 case DIO_MODE_OUT_HS:           // General purpose output, High Speed
                     gpio_cr = GPIO_CRL_MODE0;   // General purpose output push-pull, High (50MHz) speed
+                    break;
+
+                case DIO_MODE_AF0:              // Alternate functions 0, SPI
+                    gpio_cr = GPIO_CRL_CNF0_1 | GPIO_CRL_MODE0;     // AF Push-Pull out, HS
+                    break;
+
+                case DIO_MODE_AF1:              // Alternate functions 1, UART
+                    gpio_cr = GPIO_CRL_CNF0_1 | GPIO_CRL_MODE0_1;     // AF Push-Pull out, LS
                     break;
 
                 case DIO_MODE_AIN:              // Analog Mode

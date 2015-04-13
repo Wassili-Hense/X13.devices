@@ -102,11 +102,8 @@ extern "C" {
 
 #define SPIc_PORT                   GPIOA
 #define SPIc_SCK_PIN                GPIO_Pin_5
-#define SPIc_SCK_PINSRC             GPIO_PinSource5
 #define SPIc_MISO_PIN               GPIO_Pin_6
-#define SPIc_MISO_PINSRC            GPIO_PinSource6
 #define SPIc_MOSI_PIN               GPIO_Pin_7
-#define SPIc_MOSI_PINSRC            GPIO_PinSource7
 
 #define SPIc                        SPI1
 
@@ -117,11 +114,8 @@ extern "C" {
 
 #define SPIc_PORT                   GPIOB
 #define SPIc_SCK_PIN                GPIO_Pin_13
-#define SPIc_SCK_PINSRC             GPIO_PinSource13
 #define SPIc_MISO_PIN               GPIO_Pin_14
-#define SPIc_MISO_PINSRC            GPIO_PinSource14
 #define SPIc_MOSI_PIN               GPIO_Pin_15
-#define SPIc_MOSI_PINSRC            GPIO_PinSource15
 
 #define SPIc                        SPI2
 

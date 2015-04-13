@@ -11,16 +11,12 @@ void hal_cc11_init_hw(void)
     RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
 #endif  //  CC11_USE_SPI
 
-    // ENC_NSS_PIN
+    // CC11_NSS_PIN
     hal_dio_gpio_cfg(CC11_NSS_PORT, CC11_NSS_PIN, DIO_MODE_OUT_HS);
     CC11_NSS_PORT->BSRR = CC11_NSS_PIN;
 
     // Configure SPI pins
-#if (defined __STM32F0XX_H)
     hal_dio_gpio_cfg(SPIc_PORT, (SPIc_SCK_PIN | SPIc_MISO_PIN | SPIc_MOSI_PIN), DIO_MODE_AF0);
-#elif (defined __STM32F10x_H)
-    #error hal_cc11_init_hw, SPI Pin configuration
-#endif
 
 #if (defined __STM32F0XX_H)
 #if (CC11_USE_SPI == 1)
