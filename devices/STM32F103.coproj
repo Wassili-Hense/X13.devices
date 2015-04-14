@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 1.7.7" name="STM32F103">
-  <Target name="S3Sn12" isCurrent="1">
+  <Target name="S3Sn12" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="310" chipName="STM32F103RB" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -69,7 +69,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="S3En12" isCurrent="0">
+  <Target name="S3En12" isCurrent="1">
     <Device manufacturerId="9" manufacturerName="ST" chipId="310" chipName="STM32F103RB" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -176,27 +176,27 @@
     <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
     <File name="cmsis/core_cm3.h" path="cmsis/core_cm3.h" type="1"/>
     <File name="Source/mqTypes.h" path="Source/mqTypes.h" type="1"/>
-    <File name="stm32_lib" path="" type="2"/>
     <File name="Source/diag.h" path="Source/diag.h" type="1"/>
+    <File name="stm32_lib" path="" type="2"/>
     <File name="Source/EXT/extser.h" path="Source/EXT/extser.h" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_net.c" path="Source/PHY/ENC28J60/enc28j60_net.c" type="1"/>
     <File name="Source/PHY/UART/uart_phy.c" path="Source/PHY/UART/uart_phy.c" type="1"/>
     <File name="Source/ObjDict.h" path="Source/ObjDict.h" type="1"/>
-    <File name="Source/HAL/HWconfig_S3Sn12.h" path="Source/HAL/HWconfig_S3Sn12.h" type="1"/>
     <File name="stm32_lib/inc" path="" type="2"/>
+    <File name="Source/HAL/HWconfig_S3Sn12.h" path="Source/HAL/HWconfig_S3Sn12.h" type="1"/>
     <File name="Source/HAL/STM32/hal_eeprom_flash.c" path="Source/HAL/STM32/hal_eeprom_flash.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_phy.h" path="Source/PHY/ENC28J60/enc28j60_phy.h" type="1"/>
     <File name="stm32_lib/src/stm32f10x_rcc.c" path="stm32_lib/src/stm32f10x_rcc.c" type="1"/>
-    <File name="Source/mqMEM.h" path="Source/mqMEM.h" type="1"/>
-    <File name="Source/HAL/STM32" path="" type="2"/>
     <File name="cmsis" path="" type="2"/>
+    <File name="Source/HAL/STM32" path="" type="2"/>
+    <File name="Source/mqMEM.h" path="Source/mqMEM.h" type="1"/>
     <File name="Source/HAL/STM32/HAL.c" path="Source/HAL/STM32/HAL.c" type="1"/>
     <File name="Source/diag.c" path="Source/diag.c" type="1"/>
     <File name="Source/mqttsn.h" path="Source/mqttsn.h" type="1"/>
     <File name="cmsis_boot/system_stm32f10x.h" path="cmsis_boot/system_stm32f10x.h" type="1"/>
-    <File name="Source/main.c" path="Source/main.c" type="1"/>
     <File name="Source/EXT/extser.c" path="Source/EXT/extser.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_def.h" path="Source/PHY/ENC28J60/enc28j60_def.h" type="1"/>
+    <File name="Source/main.c" path="Source/main.c" type="1"/>
     <File name="Source/HAL/STM32/hal_dio.c" path="Source/HAL/STM32/hal_dio.c" type="1"/>
     <File name="Source/ObjDict.c" path="Source/ObjDict.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_hw.h" path="Source/PHY/ENC28J60/enc28j60_hw.h" type="1"/>

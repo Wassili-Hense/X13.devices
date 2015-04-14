@@ -132,12 +132,12 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode)
 
             if(pinpos < 0x08)
             {
-                GPIOx->CRL &= ((uint32_t)0x0F) << pos;
+                GPIOx->CRL &= ~(((uint32_t)0x0F) << pos);
                 GPIOx->CRL |= gpio_cr;
             }
             else
             {
-                GPIOx->CRH &= ((uint32_t)0x0F) << pos;
+                GPIOx->CRH &= ~(((uint32_t)0x0F) << pos);
                 GPIOx->CRH |= gpio_cr;
             }
 #endif
