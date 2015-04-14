@@ -1,6 +1,6 @@
 #include "../../config.h"
 
-#ifdef EXTTWI_USED
+#if defined(EXTTWI_USED) || defined(EXTOPS_USED)
 
 #include "../../EXT/exttwi.h"
 
@@ -155,4 +155,4 @@ ISR(TWI_vect)
             break;
     }
 }
-#endif  //  EXTTWI_USED
+#endif  //  EXTTWI_USED | EXTOPS_USED

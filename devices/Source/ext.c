@@ -25,6 +25,10 @@ See LICENSE file for license details.
 #include "EXT/exttwi.h"
 #endif  //  EXTTWI_USED
 
+#ifdef EXTOPS_USED
+#include "EXT/extops.h"
+#endif
+
 #ifdef EXTSER_USED
 #include "EXT/extser.h"
 #endif  //  EXTSER_USED
@@ -42,6 +46,10 @@ void extInit(void)
 
 #ifdef EXTTWI_USED
     twiInit();
+#endif
+
+#ifdef EXTOPS_USED
+    opsInit();
 #endif
 
 #ifdef EXTSER_USED
@@ -151,6 +159,10 @@ void extProc(void)
 #ifdef EXTAIN_USED
     ainProc();
 #endif  //  EXTAIN_USED
+
+#ifdef EXTOPS_USED
+    opsProc();
+#endif
 
 #ifdef EXTSER_USED
     serProc();

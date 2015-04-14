@@ -48,6 +48,8 @@ extern "C" {
 
 //#define DIAG_USED               1       // Enable diagnostic messages
 
+#define EXTOPS_USED               1       // Use OptoSlider
+
 // Include Hardware definitions
 // Atmel
 // ATM328P

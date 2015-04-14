@@ -51,7 +51,7 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#define F_CPU                       8000000UL
+#define F_CPU                       14745600UL
 
 #include "AVR/hal.h"
 
@@ -79,7 +79,7 @@ extern "C" {
 // End Analogue Inputs
 
 // TWI Section
-#define EXTTWI_USED                 1
+//#define EXTTWI_USED                 1
 #define TWIM_SCL_STAT()             (PINC & (1<<PC5))
 // End TWI Section
 
