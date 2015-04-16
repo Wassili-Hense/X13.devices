@@ -2,7 +2,7 @@
 
 #ifdef DIAG_USED
 
-#define DIAG_DEF_TIMEOUT    (300 * POLL_TMR_FREQ)
+#define DIAG_DEF_TIMEOUT    (80 * POLL_TMR_FREQ)
 
 static uint32_t diag_timeout;
 

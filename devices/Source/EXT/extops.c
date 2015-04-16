@@ -20,7 +20,7 @@
 
 #define INIT_CMD_COUNT 51
 
-static void opsGesture(void);
+static void opsGesture(volatile uint8_t* data);
 
 static const uint8_t initSeq[INIT_CMD_COUNT]={
   0x0F, 0x03, 0x03,         // turn on interrupts
@@ -28,33 +28,33 @@ static const uint8_t initSeq[INIT_CMD_COUNT]={
   0x00,
   0x01,                     // interrupt on ps3 measurement
   0x17,                     //HW_KEY - The system must write the value 0x17 to this register for proper Si114x operation.
-  0x84,                     // The device wakes up every 10 ms (0x140 x 31.25 µs)
+  0x6B,                     // The device wakes up every 3 1/3 ms (0x6C x 31.25 µs)
   0x32,                     // ALS Measurements made every 10 times the device wakes up.
   0x08,                     // PS Measurements made every time the device wakes up
   0xFF, 0xFF,
   0xFF, 0xFF,
-  0x55,                     // LED current for LEDs 1 (red) & 2 (IR1)
-  0x05,                     // LED current for LED 3 (IR2)
+  0x66,                     // LED current for LEDs 1 (red) & 2 (IR1)
+  0x06,                     // LED current for LED 3 (IR2)
   0x03, 0x17, 0x77, 0xA1,   // PARAM_CH_LIST - all measurements on
-  0x03, 0x17, 0x00, 0xAB,   // PARAM_PS_ADC_GAIN -
   0x03, 0x17, 0x21, 0xA2,   // PARAM_PSLED12_SELECT - select LEDs on
   0x03, 0x17, 0x04, 0xA3,   // PARAM_PSLED3_SELECT - 3 only
   0x03, 0x17, 0x03, 0xA7,   // PARAM_PS1_ADCMUX - PS1 photodiode select
   0x03, 0x17, 0x03, 0xA8,   // PARAM_PS2_ADCMUX - PS2 photodiode select
   0x03, 0x17, 0x03, 0xA9,   // PARAM_PS3_ADCMUX - PS3 photodiode select
   0x03, 0x17, 0x70, 0xAA,   // PARAM_PS_ADC_COUNTER - is default
+  0x03, 0x17, 0x00, 0xAB,   // PARAM_PS_ADC_GAIN -
   0x02, 0x18, 0x0F          // starts an autonomous read loop
 };
 
 // Global variable used in HAL
 volatile TWI_QUEUE_t  * pTwi_exchange = NULL;
 
-static uint8_t dirCur, dirOld;
-static int8_t opsState;
-TWI_QUEUE_t * opsPacket;
+static uint8_t dirCur=0, dirOld;
+static int8_t opsState=0;
+static TWI_QUEUE_t * opsPacket;
 
-static uint16_t _valueCur[3], _valueOld[3], _thresold[3]={500, 500, 500}, _edge[6], _tick;
-static uint8_t flag;
+static int16_t _thresold[3]={0x0400, 0x0400, 0x0400}, _edge[6], _tick=1;
+static uint8_t flag=0, stateOld=0;
 // HAL
 bool hal_twi_configure(uint8_t enable);
 void hal_twi_tick(void);
@@ -99,10 +99,7 @@ void opsInit()
   pIndex->sidx.Place = objUsrExt;     // TWI object
   pIndex->sidx.Type  = objUInt8;      // Variable Type -  Byte Array
   pIndex->sidx.Base  = 43;            // Device address
-  dirCur=0;
   dirOld=0;
-  opsState=0;
-  flag=0;
 }
 
 void opsProc(){
@@ -116,10 +113,7 @@ void opsProc(){
       } else if(access & TWI_RDY) {
       if(pTwi_exchange->frame.read != 0) {
         if(opsState>=INIT_CMD_COUNT) {
-          _valueCur[0]=((pTwi_exchange->frame.data[7]<<8) | pTwi_exchange->frame.data[6]);
-          _valueCur[1]=((pTwi_exchange->frame.data[5]<<8) | pTwi_exchange->frame.data[4]);
-          _valueCur[2]=((pTwi_exchange->frame.data[9]<<8) | pTwi_exchange->frame.data[8]);
-          opsGesture();
+          opsGesture(pTwi_exchange->frame.data);
         }
       }
       pTwi_exchange = NULL;
@@ -154,24 +148,47 @@ void opsProc(){
   }
 }
 
-static void opsGesture(void){
-  uint16_t startTick;  // *10ms
-  int16_t duration, dx, dy;
-  uint8_t i;
+//void opsDiag(uint8_t r, int8_t dx, int8_t dy, int8_t du){
+  //MQ_t * pMessage = mqAlloc(sizeof(MQ_t));
+  //if(pMessage == NULL)
+  //return;
+  //
+  //pMessage->mq.publish.Data[0] = r;
+  //pMessage->mq.publish.Data[1] = dx;
+  //pMessage->mq.publish.Data[2] = dy;
+  //pMessage->mq.publish.Data[3] = du;
+  //
+  //pMessage->Length = 4;
+  //
+  //mqttsn_trace_msg(lvlINFO, pMessage);
+  //
+//}
+
+
+static void opsGesture(volatile uint8_t *data){
+  int16_t startTick, duration, dx, dy;  // *10ms
+  uint8_t i, mask;
+  int16_t _valueCur[3];
+  _valueCur[0]=((pTwi_exchange->frame.data[7]<<8) | pTwi_exchange->frame.data[6]);
+  _valueCur[1]=((pTwi_exchange->frame.data[5]<<8) | pTwi_exchange->frame.data[4]);
+  _valueCur[2]=((pTwi_exchange->frame.data[9]<<8) | pTwi_exchange->frame.data[8]);
   
   //dirCur=0;
 
   for(i=0; i<3; i++) {
-    if(_valueOld[i] < _thresold[i] && _valueCur[i]>_thresold[i]) {  // Rising Edge Detection
-      if(_edge[i]==0) {
+    mask=1<<i;
+    if(_valueCur[i]>_thresold[i]){
+      if((stateOld&mask)==0 && _edge[i]==0) {  // Rising Edge Detection
         _edge[i]=_tick;
-        flag|=1<<i;
+        flag|=mask;
       }
-      } else if(_valueOld[i] > _thresold[i] && _valueCur[i] < _thresold[i]) {  // Falling Edge Detection
-      if(_edge[i+3]==0) {
+      stateOld|=mask;
+    }else {
+      if((stateOld&mask)!=0 && _edge[i+3]==0) {  // Falling Edge Detection
         _edge[i+3]=_tick;
-        flag|=1<<(i+4);
+        flag|=mask<<4;
       }
+      stateOld&=~mask;
     }
   }
 
@@ -184,20 +201,22 @@ static void opsGesture(void){
     if(duration<_edge[2]){
       duration=_edge[2];
     }
-    duration-=startTick;
-    duration/=2;
+    duration=(duration-startTick-1)/2;
+    if(duration<2){
+      duration=2;
+    }
     // Process rising edge group (this code implements the conditional event/gesture table)
     dx=_edge[1]-_edge[0];
     dy=_edge[2]-_edge[0];
     if(dx>duration) {
       dirCur|=ENTER_LEFT;
-      } else if(dx<-duration) {
+    } else if(dx<-duration) {
       dirCur|=ENTER_RIGHT;
     }
 
     if(dy>duration) {
       dirCur|=ENTER_BOTTOM;
-      } else if(dy<-duration) {
+    } else if(dy<-duration) {
       dirCur|=ENTER_TOP;
     }
 
@@ -205,6 +224,7 @@ static void opsGesture(void){
       dirCur=ENTER_CENTER;
     }
 
+    //opsDiag(dirCur, (int8_t)dx, (int8_t)dy, (int8_t) duration);
     _edge[0]=0;
     _edge[1]=0;
     _edge[2]=0;
@@ -220,20 +240,22 @@ static void opsGesture(void){
     if(duration<_edge[5]){
       duration=_edge[5];
     }
-    duration-=startTick;
-    duration/=2;
+    duration=(duration-startTick-1)/2;
+    if(duration<2){
+      duration=2;
+    }
     // Process rising edge group (this code implements the conditional event/gesture table)
     dx=_edge[4]-_edge[3];
     dy=_edge[5]-_edge[3];
     if(dx>duration) {
       dirCur|=LEAVE_RIGHT;
-      } else if(dx<-duration) {
+    } else if(dx<-duration) {
       dirCur|=LEAVE_LEFT;
     }
 
     if(dy>duration) {
       dirCur|=LEAVE_TOP;
-      } else if(dy<-duration) {
+    } else if(dy<-duration) {
       dirCur|=LEAVE_BOTTOM;
     }
 
@@ -241,25 +263,29 @@ static void opsGesture(void){
       dirCur=LEAVE_CENTER;
     }
 
+    //opsDiag(dirCur, (int8_t)dx, (int8_t)dy, (int8_t)duration);
     _edge[3]=0;
     _edge[4]=0;
     _edge[5]=0;
     flag&=~0x70;
   }
-  startTick=_tick>50?_tick-50:0;
+  startTick=_tick>(POLL_TMR_FREQ+2)?_tick-POLL_TMR_FREQ:0;
   for(i=0; i<3; i++) {
-    _thresold[i]=(_valueCur[i]*17/16+_thresold[i]*15)/16; // C + 1/16
-    _valueOld[i]=_valueCur[i];
-    if(_edge[i]<startTick) {
+    mask=1<<i;
+    if(_tick==POLL_TMR_FREQ-1){
+      _thresold[i]+=(_valueCur[i]+_valueCur[i]/4-_thresold[i])/16; // C + 1/4
+    }    
+    if((flag&mask)!=0 && _edge[i]<startTick) {
       _edge[i]=0;
-      flag&=~(1<<i);
+      flag&=~mask;
     }
-    if(_edge[i+3]<startTick) {
+    if((flag&(mask<<4))!=0 && _edge[i+3]<startTick) {
       _edge[i+3]=0;
-      flag&=~(1<<(i+4));
+      flag&=~(mask<<4);
     }
   }
-  if(flag==0){
+  if(flag==0 && _tick>POLL_TMR_FREQ){
+    //opsDiag(0xFF, _thresold[0]>>6 , _thresold[1]>>6, _thresold[2]>>6);
     _tick=1;
   }
 }

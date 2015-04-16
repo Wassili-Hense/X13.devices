@@ -34,7 +34,7 @@ extern "C" {
 #define OD_DEV_SWVERSM          '0'
 #define OD_DEV_SWVERSL          '1'
 
-#define POLL_TMR_FREQ           100     // System Tick Period
+#define POLL_TMR_FREQ           300     // System Tick Period
 
 #define UART_BaudRate           38400
 #define RF_BASE_FREQ            868300000UL
